@@ -17,87 +17,14 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
         body {
-            background:#f4f6fa; /* light gray background */
+            background:#f4f6fa;
             min-height:100vh;
             display:flex;
             align-items:center;
             justify-content:center;
-            color:#1e293b; /* dark text */
+            color:#1e293b;
         }
-        /* LOGIN PAGE */
-        .login-container {
-            background:white;
-            border-radius:32px;
-            box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);
-            width:90%;
-            max-width:420px;
-            padding:40px 32px;
-            text-align:center;
-        }
-        .login-container h2 {
-            font-size:28px;
-            font-weight:600;
-            color:#0f172a;
-            margin-bottom:8px;
-        }
-        .login-container h2 i {
-            color:#2563eb; /* blue */
-        }
-        .login-container p {
-            color:#64748b;
-            margin-bottom:32px;
-        }
-        .input-group {
-            text-align:left;
-            margin-bottom:24px;
-        }
-        .input-group label {
-            display:block;
-            font-size:14px;
-            font-weight:500;
-            color:#334155;
-            margin-bottom:6px;
-        }
-        .input-group input {
-            width:100%;
-            padding:14px 16px;
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:16px;
-            font-size:15px;
-            color:#0f172a;
-            outline:none;
-            transition:0.15s;
-        }
-        .input-group input:focus {
-            border-color:#2563eb;
-            box-shadow:0 0 0 3px rgba(37,99,235,0.1);
-        }
-        .login-btn {
-            background:#2563eb;
-            color:white;
-            border:none;
-            width:100%;
-            padding:14px;
-            border-radius:30px;
-            font-size:16px;
-            font-weight:600;
-            cursor:pointer;
-            margin-top:8px;
-            transition:0.15s;
-        }
-        .login-btn:hover {
-            background:#1d4ed8;
-        }
-        .error-message {
-            color:#dc2626;
-            font-size:14px;
-            margin-top:16px;
-        }
-
-        /* DASHBOARD */
         .dashboard-container {
-            display:none;
             width:100%;
             max-width:1600px;
             margin:0 auto;
@@ -105,7 +32,7 @@
         }
         .dashboard { width:100%; }
 
-        /* Header with logo */
+        /* Header */
         .header {
             display:flex;
             justify-content:space-between;
@@ -118,7 +45,7 @@
             gap:12px;
         }
         .logo-icon {
-            background:#fbbf24; /* yellow */
+            background:#fbbf24;
             color:#0f172a;
             width:48px;
             height:48px;
@@ -134,7 +61,7 @@
             color:#0f172a;
         }
         .logo-text span {
-            color:#2563eb; /* blue */
+            color:#2563eb;
             font-weight:400;
         }
         .badge {
@@ -145,7 +72,12 @@
             color:#2563eb;
             border:1px solid #e2e8f0;
         }
-        .logout-btn {
+        .header-actions {
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+        .lock-btn, .logout-btn {
             background:white;
             border:1px solid #e2e8f0;
             border-radius:30px;
@@ -157,10 +89,17 @@
             align-items:center;
             gap:8px;
             cursor:pointer;
-            margin-left:20px;
         }
-        .logout-btn:hover {
+        .lock-btn:hover, .logout-btn:hover {
             background:#f8fafc;
+        }
+        .role-badge {
+            background:#f1f5f9;
+            padding:4px 12px;
+            border-radius:30px;
+            font-size:13px;
+            color:#2563eb;
+            border:1px solid #2563eb;
         }
 
         /* Upload area */
@@ -227,7 +166,7 @@
             background:#f8fafc;
         }
 
-        /* Filter bar */
+        /* Filter bar (same as before) */
         .filter-bar {
             background:white;
             padding:18px 24px;
@@ -279,7 +218,7 @@
             background:#f8fafc;
         }
 
-        /* Cards */
+        /* Cards, charts, tables – unchanged */
         .cards {
             display:grid;
             grid-template-columns:repeat(4,1fr);
@@ -312,8 +251,6 @@
             color:#475569;
             font-size:14px;
         }
-
-        /* Chart cards */
         .charts-row {
             display:grid;
             grid-template-columns:1fr 1fr;
@@ -331,8 +268,6 @@
             font-size:18px;
             color:#0f172a;
         }
-
-        /* Tables */
         .area-card, .team-retention-card {
             background:white;
             border-radius:24px;
@@ -373,8 +308,6 @@
             background:#dcfce7;
             color:#166534;
         }
-
-        /* Employee table */
         .employee-table-wrapper {
             max-height:400px;
             overflow-y:auto;
@@ -426,59 +359,114 @@
             font-family: monospace;
             font-size:12px;
         }
-        .role-badge {
-            background:#f1f5f9;
-            padding:4px 12px;
-            border-radius:30px;
-            font-size:13px;
-            margin-left:12px;
-            color:#2563eb;
-            border:1px solid #2563eb;
+
+        /* Login modal (hidden by default) */
+        .modal-overlay {
+            position:fixed;
+            top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.4);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:1000;
+            visibility:hidden;
+            opacity:0;
+            transition:0.2s;
         }
-        .export-btn {
+        .modal-overlay.show {
+            visibility:visible;
+            opacity:1;
+        }
+        .modal-card {
+            background:white;
+            border-radius:32px;
+            width:90%;
+            max-width:380px;
+            padding:32px 28px;
+            box-shadow:0 20px 30px -10px rgba(0,0,0,0.2);
+            position:relative;
+        }
+        .modal-card h3 {
+            font-size:24px;
+            font-weight:600;
+            color:#0f172a;
+            margin-bottom:8px;
+        }
+        .modal-card p {
+            color:#64748b;
+            margin-bottom:24px;
+        }
+        .modal-close {
+            position:absolute;
+            top:20px; right:20px;
+            background:none;
+            border:none;
+            font-size:20px;
+            cursor:pointer;
+            color:#94a3b8;
+        }
+        .input-group {
+            text-align:left;
+            margin-bottom:20px;
+        }
+        .input-group label {
+            display:block;
+            font-size:14px;
+            font-weight:500;
+            color:#334155;
+            margin-bottom:6px;
+        }
+        .input-group input {
+            width:100%;
+            padding:14px 16px;
             background:white;
             border:1px solid #e2e8f0;
+            border-radius:16px;
+            font-size:15px;
+            color:#0f172a;
+            outline:none;
+        }
+        .input-group input:focus {
+            border-color:#2563eb;
+            box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .modal-btn {
+            background:#2563eb;
+            color:white;
+            border:none;
+            width:100%;
+            padding:14px;
             border-radius:30px;
-            padding:10px 20px;
+            font-size:16px;
+            font-weight:600;
             cursor:pointer;
-            color:#334155;
+            margin-top:10px;
         }
-        .export-btn:hover {
-            background:#f8fafc;
+        .modal-btn:hover {
+            background:#1d4ed8;
         }
-        a, button {
-            transition:all 0.2s;
+        .error-message {
+            color:#dc2626;
+            font-size:14px;
+            margin-top:16px;
+            text-align:center;
         }
     </style>
 </head>
 <body>
-    <!-- Login Page -->
-    <div class="login-container" id="loginContainer">
-        <h2><i class="fas fa-briefcase"></i> Alpha Konnect</h2>
-        <p>Sign in with your role</p>
-        <div class="input-group">
-            <label>Email</label>
-            <input type="text" id="emailInput" placeholder="admin or access">
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="passwordInput" placeholder="••••••••">
-        </div>
-        <button class="login-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
-        <div class="error-message" id="loginError"></div>
-    </div>
-
-    <!-- Dashboard Container -->
+    <!-- Dashboard (always visible) -->
     <div class="dashboard-container" id="dashboardContainer">
         <div class="dashboard">
+            <!-- Header with lock and logout -->
             <div class="header">
                 <div class="logo-area">
                     <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
                     <div class="logo-text">Alpha<span>Konnect</span></div>
                 </div>
-                <div style="display:flex; align-items:center;">
+                <div class="header-actions">
                     <div class="badge"><i class="fas fa-cloud"></i> Supabase</div>
-                    <span class="role-badge" id="roleDisplay"></span>
+                    <span class="role-badge" id="roleDisplay">Viewer</span>
+                    <button class="lock-btn" id="lockBtn"><i class="fas fa-lock"></i> Admin</button>
                     <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
             </div>
@@ -489,19 +477,19 @@
                 <select id="monthSelector">
                     <option value="">-- Select a month --</option>
                 </select>
-                <!-- Admin-only delete button -->
+                <!-- Admin-only delete button (hidden initially) -->
                 <button id="deleteMonthBtn" style="display:none;"><i class="fas fa-trash-alt"></i> Delete</button>
                 <span id="monthStatus" style="color:#64748b; margin-left:auto;"></span>
             </div>
 
-            <!-- Admin-only upload area -->
+            <!-- Admin-only upload area (hidden initially) -->
             <div class="upload-area" id="uploadArea" style="display: none;">
                 <input type="file" id="fileInput" accept=".xlsx, .xls">
                 <button id="uploadBtn"><i class="fas fa-upload"></i> Upload & Store</button>
                 <span id="uploadStatus" style="color:#64748b;"></span>
             </div>
 
-            <!-- Filter bar -->
+            <!-- Filter bar (populated by JS) -->
             <div class="filter-bar" id="filterBar" style="display: none;"></div>
 
             <!-- Summary cards -->
@@ -553,39 +541,63 @@
         </div>
     </div>
 
+    <!-- Login Modal (hidden by default) -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-card">
+            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            <h3><i class="fas fa-lock" style="color:#2563eb;"></i> Admin Login</h3>
+            <p>Enter your credentials to access admin features</p>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="text" id="modalEmail" placeholder="admin or access">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="modalPassword" placeholder="••••••••">
+            </div>
+            <button class="modal-btn" id="modalLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <div class="error-message" id="modalError"></div>
+        </div>
+    </div>
+
     <script>
         (function() {
-            // ---------- Supabase Configuration (your credentials) ----------
+            // Supabase config
             const SUPABASE_URL = 'https://vnuvmbnlxhhhbfpiwzef.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZudXZtYm5seGhoaGJmcGl3emVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNzUzNDIsImV4cCI6MjA4Nzc1MTM0Mn0.jnImxezvHLiRCdUkgBLgQ97uW-9FHpfcgL3ipvOLpas';
-
             const { createClient } = supabase;
             const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // ---------- Login Logic ----------
+            // Hardcoded users (same as before)
             const USERS = {
                 admin: { email: "admin", password: "ak2026", role: "admin" },
                 user:  { email: "access", password: "user01", role: "viewer" }
             };
 
-            const loginContainer = document.getElementById('loginContainer');
+            // DOM elements
             const dashboardContainer = document.getElementById('dashboardContainer');
-            const loginBtn = document.getElementById('loginBtn');
-            const emailInput = document.getElementById('emailInput');
-            const passwordInput = document.getElementById('passwordInput');
-            const loginError = document.getElementById('loginError');
-            const logoutBtn = document.getElementById('logoutBtn');
             const roleDisplay = document.getElementById('roleDisplay');
             const uploadArea = document.getElementById('uploadArea');
             const deleteMonthBtn = document.getElementById('deleteMonthBtn');
+            const lockBtn = document.getElementById('lockBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const modalOverlay = document.getElementById('loginModal');
+            const modalClose = document.getElementById('modalClose');
+            const modalEmail = document.getElementById('modalEmail');
+            const modalPassword = document.getElementById('modalPassword');
+            const modalLoginBtn = document.getElementById('modalLoginBtn');
+            const modalError = document.getElementById('modalError');
 
-            let currentRole = null;
+            // State
+            let currentRole = 'viewer';          // default role
             let currentData = [];
             let currentMonthKey = null;
             let currentLastDay = null;
 
+            // Chart instances
             let sourceChart, teamChart, genderChart, salaryChart, tenureChart;
 
+            // Branch/team mapping (unchanged)
             const branchTeams = {
                 "Invnt": ["Team Prosper", "Team Chad", "Team Moses", "Team Sonwabile", "Invnt Incubation"],
                 "Alpha": ["Team Popo", "Team Khaya", "Team Isipho", "Team Ayabonga", "Alpha Incubation"]
@@ -600,7 +612,7 @@
 
             const unique = (arr) => [...new Set(arr)];
 
-            // ---------- Date helpers ----------
+            // Date helpers (unchanged)
             function parseDateFromCell(value) {
                 if (!value) return null;
                 if (typeof value === 'number') {
@@ -614,30 +626,25 @@
                 }
                 return null;
             }
-
             function formatDate(date) {
                 if (!date) return '';
                 try { return date.toISOString().split('T')[0]; } catch { return ''; }
             }
-
             function monthsBetween(start, end) {
                 if (!start || !end) return null;
                 const years = end.getFullYear() - start.getFullYear();
                 const months = end.getMonth() - start.getMonth();
                 return years * 12 + months;
             }
-
             function computeTenure(emp, lastDay) {
                 const start = emp.startDateObj;
                 if (!start || !lastDay) return null;
                 return monthsBetween(start, lastDay);
             }
-
             function extractMonthFromFilename(filename) {
                 const match = filename.match(/([A-Za-z]+ \d{4})/);
                 return match ? match[1] : null;
             }
-
             function displayMonthToKey(display) {
                 const months = {'January':'01','February':'02','March':'03','April':'04','May':'05','June':'06',
                     'July':'07','August':'08','September':'09','October':'10','November':'11','December':'12'};
@@ -647,7 +654,6 @@
                 const monthNum = months[monthName];
                 return monthNum ? `${year}-${monthNum}` : display.replace(/\s+/g, '_');
             }
-
             function keyToDisplayMonth(key) {
                 const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
                 if (!key.includes('-')) return key.replace(/_/g, ' ');
@@ -656,7 +662,7 @@
                 return (monthIndex>=0 && monthIndex<12) ? `${months[monthIndex]} ${year}` : key;
             }
 
-            // ---------- Supabase data functions ----------
+            // Supabase data functions
             async function fetchMonthKeys() {
                 const { data, error } = await supabaseClient
                     .from('monthly_data')
@@ -668,7 +674,6 @@
                 }
                 return data.map(row => row.month_key);
             }
-
             async function fetchMonthData(monthKey) {
                 const { data, error } = await supabaseClient
                     .from('monthly_data')
@@ -684,7 +689,6 @@
                 });
                 return data.data;
             }
-
             async function storeMonthData(monthKey, dataArray) {
                 const clean = dataArray.map(emp => {
                     const { startDateObj, ...rest } = emp;
@@ -693,24 +697,17 @@
                 const { error } = await supabaseClient
                     .from('monthly_data')
                     .upsert({ month_key: monthKey, data: clean }, { onConflict: 'month_key' });
-                if (error) {
-                    console.error('Error storing month:', error);
-                    throw error;
-                }
+                if (error) throw error;
             }
-
             async function deleteMonthData(monthKey) {
                 const { error } = await supabaseClient
                     .from('monthly_data')
                     .delete()
                     .eq('month_key', monthKey);
-                if (error) {
-                    console.error('Error deleting month:', error);
-                    throw error;
-                }
+                if (error) throw error;
             }
 
-            // ---------- UI update functions ----------
+            // UI update functions
             async function refreshMonthSelector(selectedKey = null) {
                 const select = document.getElementById('monthSelector');
                 const months = await fetchMonthKeys();
@@ -755,7 +752,7 @@
                 sourceChart = teamChart = genderChart = salaryChart = tenureChart = null;
             }
 
-            // ---------- Excel parsing ----------
+            // Excel parsing
             function rowToObject(row, status) {
                 const obj = {
                     startDate: row[0],
@@ -777,7 +774,6 @@
                 obj.startDateObj = parseDateFromCell(obj.startDate);
                 return obj;
             }
-
             function parseExcel(file) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -787,29 +783,24 @@
                         const firstSheetName = workbook.SheetNames[0];
                         const sheet = workbook.Sheets[firstSheetName];
                         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
                         const inactiveHeaderIndex = rows.findIndex(row => 
                             row[0] && typeof row[0] === 'string' && row[0].toLowerCase().includes('inactive start dates')
                         );
-
                         if (inactiveHeaderIndex === -1) {
                             reject('Could not find "Inactive Start Dates" section in the sheet.');
                             return;
                         }
-
                         const activeRows = rows.slice(1, inactiveHeaderIndex).filter(r => r[1] && r[1].toString().trim() !== '');
                         const inactiveRows = rows.slice(inactiveHeaderIndex + 1).filter(r => r[1] && r[1].toString().trim() !== '');
-
                         const activeData = activeRows.map(row => rowToObject(row, 'active'));
                         const inactiveData = inactiveRows.map(row => rowToObject(row, 'inactive'));
-
                         resolve([...activeData, ...inactiveData]);
                     };
                     reader.readAsArrayBuffer(file);
                 });
             }
 
-            // ---------- Render dashboard (with chart colors adapted) ----------
+            // Render dashboard (exactly as before, but uses currentRole for visibility)
             function renderDashboard(data) {
                 document.getElementById('filterBar').style.display = 'flex';
 
@@ -833,7 +824,6 @@
                 document.getElementById('sourceFilter').addEventListener('change', applyFilters);
                 document.getElementById('genderFilter').addEventListener('change', applyFilters);
                 document.getElementById('areaFilter').addEventListener('change', applyFilters);
-                document.getElementById('resetFilters').addEventListener('change', resetAllFilters);
                 document.getElementById('resetFilters').addEventListener('click', resetAllFilters);
 
                 const sources = unique(data.map(d => d.source).filter(Boolean)).sort();
@@ -884,7 +874,6 @@
                 const source = document.getElementById('sourceFilter')?.value || 'ALL';
                 const gender = document.getElementById('genderFilter')?.value || 'ALL';
                 const area = document.getElementById('areaFilter')?.value || 'ALL';
-
                 return currentData.filter(d => {
                     if (branch !== 'All' && getBranch(d.team) !== branch) return false;
                     if (status !== 'ALL' && d.status !== status) return false;
@@ -1044,7 +1033,20 @@
                 }).join('');
             }
 
-            // ---------- Event Listeners ----------
+            // Role management
+            function setRole(role) {
+                currentRole = role;
+                roleDisplay.innerText = role === 'admin' ? 'Admin' : 'Viewer';
+                if (role === 'admin') {
+                    uploadArea.style.display = 'flex';
+                    deleteMonthBtn.style.display = 'inline-block';
+                } else {
+                    uploadArea.style.display = 'none';
+                    deleteMonthBtn.style.display = 'none';
+                }
+            }
+
+            // Event listeners
             document.getElementById('uploadBtn').addEventListener('click', async function() {
                 if (currentRole !== 'admin') {
                     alert('Only admin can upload.');
@@ -1058,7 +1060,6 @@
                 }
                 const statusSpan = document.getElementById('uploadStatus');
                 statusSpan.innerText = 'Processing...';
-
                 let displayMonth = extractMonthFromFilename(file.name);
                 if (!displayMonth) {
                     displayMonth = prompt('Could not detect month from filename. Please enter month (e.g., January 2026):');
@@ -1067,7 +1068,6 @@
                         return;
                     }
                 }
-
                 try {
                     const data = await parseExcel(file);
                     const key = displayMonthToKey(displayMonth);
@@ -1115,23 +1115,26 @@
                 }
             });
 
-            // ---------- Login / Logout ----------
-            if (sessionStorage.getItem('loggedIn') === 'true') {
-                const role = sessionStorage.getItem('role');
-                if (role) {
-                    currentRole = role;
-                    showDashboard(role);
-                } else {
-                    sessionStorage.clear();
-                }
-            } else {
-                loginContainer.style.display = 'block';
-                dashboardContainer.style.display = 'none';
-            }
+            // Lock button – show modal
+            lockBtn.addEventListener('click', () => {
+                modalOverlay.classList.add('show');
+                modalEmail.value = '';
+                modalPassword.value = '';
+                modalError.innerText = '';
+            });
 
-            loginBtn.onclick = function() {
-                const email = emailInput.value.trim();
-                const password = passwordInput.value.trim();
+            // Modal close
+            modalClose.addEventListener('click', () => {
+                modalOverlay.classList.remove('show');
+            });
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) modalOverlay.classList.remove('show');
+            });
+
+            // Modal login
+            modalLoginBtn.addEventListener('click', () => {
+                const email = modalEmail.value.trim();
+                const password = modalPassword.value.trim();
                 let foundRole = null;
                 for (let key in USERS) {
                     if (USERS[key].email === email && USERS[key].password === password) {
@@ -1140,43 +1143,23 @@
                     }
                 }
                 if (foundRole) {
-                    sessionStorage.setItem('loggedIn', 'true');
-                    sessionStorage.setItem('role', foundRole);
-                    currentRole = foundRole;
-                    showDashboard(foundRole);
-                    loginError.innerText = '';
-                    emailInput.value = '';
-                    passwordInput.value = '';
+                    setRole(foundRole);
+                    modalOverlay.classList.remove('show');
                 } else {
-                    loginError.innerText = 'Invalid email or password.';
+                    modalError.innerText = 'Invalid email or password.';
                 }
-            };
+            });
 
-            logoutBtn.onclick = function() {
-                sessionStorage.removeItem('loggedIn');
-                sessionStorage.removeItem('role');
-                currentRole = null;
-                loginContainer.style.display = 'block';
-                dashboardContainer.style.display = 'none';
-                emailInput.value = '';
-                passwordInput.value = '';
-                loginError.innerText = '';
-                clearCharts();
-            };
+            // Logout button
+            logoutBtn.addEventListener('click', () => {
+                setRole('viewer');
+            });
 
-            async function showDashboard(role) {
-                loginContainer.style.display = 'none';
-                dashboardContainer.style.display = 'block';
-                roleDisplay.innerText = role === 'admin' ? 'Admin' : 'Viewer';
-                if (role === 'admin') {
-                    uploadArea.style.display = 'flex';
-                    deleteMonthBtn.style.display = 'inline-block';
-                } else {
-                    uploadArea.style.display = 'none';
-                    deleteMonthBtn.style.display = 'none';
-                }
+            // Initialize dashboard with default viewer role
+            (async function init() {
+                setRole('viewer');
                 await refreshMonthSelector();
-            }
+            })();
         })();
     </script>
 </body>
