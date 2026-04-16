@@ -13,443 +13,524 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        /* ========== REHIRE RATE ANALYZER DESIGN THEME ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background:#f4f6fa;
-            min-height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            color:#1e293b;
+            background: #f0f2f6;
+            font-family: 'Inter', sans-serif;
+            color: #1a2634;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
         .dashboard-container {
-            width:100%;
-            max-width:1600px;
-            margin:0 auto;
-            padding:24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+            width: 100%;
         }
-        .dashboard { width:100%; }
 
-        /* Header */
+        .dashboard {
+            width: 100%;
+        }
+
+        /* Header – rehire style */
         .header {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            background: transparent;
         }
+
         .logo-area {
-            display:flex;
-            align-items:center;
-            gap:12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+
         .logo-icon {
-            background:#fbbf24;
-            color:#0f172a;
-            width:48px;
-            height:48px;
-            border-radius:50%;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:24px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
         }
+
         .logo-text {
-            font-size:24px;
-            font-weight:700;
-            color:#0f172a;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e2a3a;
+            letter-spacing: -0.3px;
         }
+
         .logo-text span {
-            color:#2563eb;
-            font-weight:400;
+            color: #2a5298;
+            font-weight: 500;
         }
+
         .badge {
-            background:white;
-            padding:8px 16px;
-            border-radius:40px;
-            font-weight:500;
-            color:#2563eb;
-            border:1px solid #e2e8f0;
+            background: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #2a5298;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
+
         .header-actions {
-            display:flex;
-            align-items:center;
-            gap:12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+
         .lock-btn, .logout-btn {
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:30px;
-            padding:10px 22px;
-            font-size:14px;
-            font-weight:500;
-            color:#334155;
-            display:flex;
-            align-items:center;
-            gap:8px;
-            cursor:pointer;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
+
         .lock-btn:hover, .logout-btn:hover {
-            background:#f8fafc;
+            background: #f8fafc;
+            border-color: #cbd5e1;
         }
+
         .role-badge {
-            background:#f1f5f9;
-            padding:4px 12px;
-            border-radius:30px;
-            font-size:13px;
-            color:#2563eb;
-            border:1px solid #2563eb;
+            background: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2a5298;
+            border: none;
         }
 
-        /* Upload area */
+        /* Upload area – card style */
         .upload-area {
-            background:white;
-            border-radius:20px;
-            padding:20px;
-            margin-bottom:20px;
-            display:flex;
-            gap:20px;
-            align-items:center;
-            box-shadow:0 2px 8px rgba(0,0,0,0.04);
+            background: white;
+            border-radius: 20px;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
         }
+
         .upload-area input {
-            padding:10px;
-            background:white;
-            border:1px dashed #2563eb;
-            border-radius:12px;
-            flex-grow:1;
-            color:#0f172a;
+            padding: 10px 14px;
+            font-size: 13px;
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            flex-grow: 1;
+            font-family: 'Inter', sans-serif;
         }
+
         .upload-area button {
-            background:#2563eb;
-            color:white;
-            border:none;
-            padding:12px 30px;
-            border-radius:30px;
-            font-weight:600;
-            cursor:pointer;
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
         }
+
         .upload-area button:hover {
-            background:#1d4ed8;
+            background: #1e3c72;
         }
 
-        /* Month bar */
+        /* Month bar – card style */
         .month-bar {
-            background:white;
-            border-radius:20px;
-            padding:15px 20px;
-            margin-bottom:20px;
-            display:flex;
-            gap:20px;
-            align-items:center;
-            box-shadow:0 2px 8px rgba(0,0,0,0.04);
-        }
-        .month-bar select {
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:30px;
-            padding:10px 20px;
-            font-size:14px;
-            min-width:200px;
-            color:#0f172a;
-        }
-        .month-bar button {
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:30px;
-            padding:10px 20px;
-            cursor:pointer;
-            color:#334155;
-        }
-        .month-bar button:hover {
-            background:#f8fafc;
+            background: white;
+            border-radius: 20px;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
         }
 
-        /* Filter bar (same as before) */
+        .month-bar select {
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 14px;
+            min-width: 200px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .month-bar button {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .month-bar button:hover {
+            background: #e6edf4;
+        }
+
+        /* Filter bar – clean card */
         .filter-bar {
-            background:white;
-            padding:18px 24px;
-            border-radius:20px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.04);
-            margin-bottom:28px;
-            display:flex;
-            flex-wrap:wrap;
-            gap:20px 30px;
-            align-items:flex-end;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            align-items: flex-end;
+            border: 1px solid #eef2f6;
         }
+
         .filter-group {
-            display:flex;
-            flex-direction:column;
-            min-width:140px;
+            display: flex;
+            flex-direction: column;
+            min-width: 140px;
         }
+
         .filter-group label {
-            font-size:13px;
-            font-weight:500;
-            color:#64748b;
-            margin-bottom:6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4b5565;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
         }
+
         .filter-group select,
         .filter-group input {
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:12px;
-            padding:10px 14px;
-            font-size:14px;
-            color:#0f172a;
-            outline:none;
-            cursor:pointer;
-        }
-        .reset-btn {
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:30px;
-            padding:10px 22px;
-            font-size:14px;
-            font-weight:500;
-            color:#334155;
-            display:flex;
-            align-items:center;
-            gap:8px;
-            cursor:pointer;
-            margin-left:auto;
-        }
-        .reset-btn:hover {
-            background:#f8fafc;
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Cards, charts, tables – unchanged */
+        .reset-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            margin-left: auto;
+            transition: 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #e6edf4;
+        }
+
+        /* Cards – totals section */
         .cards {
-            display:grid;
-            grid-template-columns:repeat(4,1fr);
-            gap:22px;
-            margin-bottom:30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 30px;
         }
+
         .card {
-            background:white;
-            border-radius:24px;
-            padding:22px 24px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.04);
+            background: white;
+            border-radius: 20px;
+            padding: 20px 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+            transition: transform 0.1s ease;
         }
+
         .card-title {
-            font-size:15px;
-            font-weight:500;
-            color:#64748b;
-            margin-bottom:12px;
-            display:flex;
-            align-items:center;
-            gap:8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #5b6e8c;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .card-value {
-            font-size:42px;
-            font-weight:600;
-            color:#0f172a;
-            line-height:1.1;
+            font-size: 42px;
+            font-weight: 700;
+            color: #1e2a3a;
+            line-height: 1.1;
         }
+
         .card-foot {
-            margin-top:12px;
-            color:#475569;
-            font-size:14px;
+            margin-top: 12px;
+            color: #6c7a91;
+            font-size: 13px;
+            font-weight: 500;
         }
+
+        /* Charts row */
         .charts-row {
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:22px;
-            margin-bottom:30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-bottom: 30px;
         }
+        /* Last row with single chart (tenure only) */
+        .charts-row:last-of-type {
+            grid-template-columns: 1fr;
+        }
+
         .chart-card {
-            background:white;
-            border-radius:24px;
-            padding:20px 22px 25px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.04);
+            background: white;
+            border-radius: 20px;
+            padding: 18px 20px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
         }
+
         .chart-header h3 {
-            font-weight:600;
-            font-size:18px;
-            color:#0f172a;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #1e2a3a;
+            letter-spacing: -0.2px;
         }
-        .area-card, .team-retention-card {
-            background:white;
-            border-radius:24px;
-            padding:20px 24px 28px;
-            margin-bottom:30px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.04);
+
+        canvas {
+            max-height: 220px;
+            width: 100%;
         }
-        .retention-table, .area-table {
-            width:100%;
-            border-collapse:collapse;
-            margin-top:12px;
-            font-size:14px;
-            color:#1e293b;
+
+        /* Tables – clean & minimal */
+        .team-retention-card,
+        .area-card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 20px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
         }
-        .retention-table th, .area-table th {
-            text-align:left;
-            padding:16px 8px 8px;
-            font-weight:600;
-            color:#2563eb;
-            border-bottom:2px solid #2563eb;
+
+        .retention-table,
+        .area-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
         }
-        .retention-table td, .area-table td {
-            padding:12px 8px;
-            border-bottom:1px solid #e9eef2;
-            color:#1e293b;
+
+        .retention-table th,
+        .area-table th {
+            text-align: left;
+            padding: 12px 8px 10px;
+            font-weight: 600;
+            color: #2a5298;
+            border-bottom: 2px solid #e2e8f0;
         }
+
+        .retention-table td,
+        .area-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f0f2f6;
+        }
+
         .badge-rate {
-            background:#f1f5f9;
-            padding:4px 12px;
-            border-radius:30px;
-            font-size:13px;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
         }
+
         .rate-high {
-            background:#fee2e2;
-            color:#b91c1c;
+            background: #fee2e2;
+            color: #b91c1c;
         }
         .rate-low {
-            background:#dcfce7;
-            color:#166534;
-        }
-        .employee-table-wrapper {
-            max-height:400px;
-            overflow-y:auto;
-            border-radius:18px;
-            border:1px solid #ecf1f6;
-        }
-        .employee-table {
-            width:100%;
-            border-collapse:collapse;
-            font-size:13px;
-            background:white;
-        }
-        .employee-table th {
-            background:#f8fafc;
-            padding:14px 10px;
-            text-align:left;
-            font-weight:600;
-            color:#2563eb;
-            position:sticky;
-            top:0;
-        }
-        .employee-table td {
-            padding:12px 10px;
-            border-bottom:1px solid #ecf1f6;
-            color:#1f2a41;
-        }
-        .status-badge {
-            display:inline-block;
-            padding:4px 12px;
-            border-radius:40px;
-            font-size:12px;
-            font-weight:500;
-        }
-        .active {
-            background:#e6f7e6;
-            color:#0e6245;
-        }
-        .inactive {
-            background:#ffe6e6;
-            color:#a12b2b;
-        }
-        .footer-note {
-            margin-top:24px;
-            text-align:right;
-            font-size:13px;
-            color:#94a3b8;
-        }
-        .tenure-col {
-            font-family: monospace;
-            font-size:12px;
+            background: #dcfce7;
+            color: #166534;
         }
 
-        /* Login modal (hidden by default) */
+        /* Employee table */
+        .employee-table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 16px;
+            border: 1px solid #eef2f6;
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+        }
+
+        .employee-table th {
+            background: #f9fafb;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #2a5298;
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .employee-table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #f0f2f6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .active {
+            background: #e0f2e9;
+            color: #0b5e42;
+        }
+
+        .inactive {
+            background: #ffe6e5;
+            color: #a12b2b;
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            text-align: right;
+            font-size: 13px;
+            color: #7e8c9e;
+        }
+
+        .tenure-col {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        /* Modal – matching theme */
         .modal-overlay {
-            position:fixed;
-            top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.4);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            z-index:1000;
-            visibility:hidden;
-            opacity:0;
-            transition:0.2s;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
         }
         .modal-overlay.show {
-            visibility:visible;
-            opacity:1;
+            visibility: visible;
+            opacity: 1;
         }
         .modal-card {
-            background:white;
-            border-radius:32px;
-            width:90%;
-            max-width:380px;
-            padding:32px 28px;
-            box-shadow:0 20px 30px -10px rgba(0,0,0,0.2);
-            position:relative;
+            background: white;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 380px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+            position: relative;
         }
         .modal-card h3 {
-            font-size:24px;
-            font-weight:600;
-            color:#0f172a;
-            margin-bottom:8px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1e2a3a;
         }
         .modal-card p {
-            color:#64748b;
-            margin-bottom:24px;
+            font-size: 14px;
+            color: #5b6e8c;
+            margin-bottom: 24px;
         }
         .modal-close {
-            position:absolute;
-            top:20px; right:20px;
-            background:none;
-            border:none;
-            font-size:20px;
-            cursor:pointer;
-            color:#94a3b8;
+            position: absolute;
+            top: 20px; right: 22px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #94a3b8;
         }
         .input-group {
-            text-align:left;
-            margin-bottom:20px;
+            margin-bottom: 20px;
         }
         .input-group label {
-            display:block;
-            font-size:14px;
-            font-weight:500;
-            color:#334155;
-            margin-bottom:6px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
         }
         .input-group input {
-            width:100%;
-            padding:14px 16px;
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:16px;
-            font-size:15px;
-            color:#0f172a;
-            outline:none;
-        }
-        .input-group input:focus {
-            border-color:#2563eb;
-            box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
         }
         .modal-btn {
-            background:#2563eb;
-            color:white;
-            border:none;
-            width:100%;
-            padding:14px;
-            border-radius:30px;
-            font-size:16px;
-            font-weight:600;
-            cursor:pointer;
-            margin-top:10px;
-        }
-        .modal-btn:hover {
-            background:#1d4ed8;
+            background: #2a5298;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
         }
         .error-message {
-            color:#dc2626;
-            font-size:14px;
-            margin-top:16px;
-            text-align:center;
+            font-size: 14px;
+            color: #dc2626;
+            margin-top: 16px;
+            text-align: center;
         }
     </style>
 </head>
@@ -473,20 +554,20 @@
 
             <!-- Month selector bar -->
             <div class="month-bar">
-                <i class="fas fa-calendar-alt" style="color:#2563eb;"></i>
+                <i class="fas fa-calendar-alt" style="color:#2a5298;"></i>
                 <select id="monthSelector">
                     <option value="">-- Select a month --</option>
                 </select>
                 <!-- Admin-only delete button (hidden initially) -->
                 <button id="deleteMonthBtn" style="display:none;"><i class="fas fa-trash-alt"></i> Delete</button>
-                <span id="monthStatus" style="color:#64748b; margin-left:auto;"></span>
+                <span id="monthStatus" style="color:#6c7a91; margin-left:auto;"></span>
             </div>
 
             <!-- Admin-only upload area (hidden initially) -->
             <div class="upload-area" id="uploadArea" style="display: none;">
                 <input type="file" id="fileInput" accept=".xlsx, .xls">
                 <button id="uploadBtn"><i class="fas fa-upload"></i> Upload & Store</button>
-                <span id="uploadStatus" style="color:#64748b;"></span>
+                <span id="uploadStatus" style="color:#6c7a91;"></span>
             </div>
 
             <!-- Filter bar (populated by JS) -->
@@ -504,14 +585,14 @@
                 <div class="chart-card"><div class="chart-header"><h3>Gender Distribution</h3></div><div class="chart-container"><canvas id="genderChart"></canvas></div></div>
                 <div class="chart-card"><div class="chart-header"><h3>Salary Brackets (Active)</h3></div><div class="chart-container"><canvas id="salaryChart"></canvas></div></div>
             </div>
+            <!-- Last row: only Tenure Distribution chart (full width) -->
             <div class="charts-row">
                 <div class="chart-card"><div class="chart-header"><h3>Tenure Distribution (months)</h3></div><div class="chart-container"><canvas id="tenureChart"></canvas></div></div>
-                <div class="chart-card" style="background:#f9f9fc; display:flex; align-items:center; justify-content:center;"></div>
             </div>
 
             <!-- Team Retention Table -->
             <div class="team-retention-card">
-                <div class="chart-header"><h3><i class="fas fa-users-retain" style="color:#2563eb;"></i> Team Retention</h3></div>
+                <div class="chart-header"><h3><i class="fas fa-users-retain" style="color:#2a5298;"></i> Team Retention</h3></div>
                 <table class="retention-table">
                     <thead><tr><th>Team</th><th>Total Agents</th><th>Retained (Active)</th><th>Retention %</th></tr></thead>
                     <tbody id="teamRetentionBody"></tbody>
@@ -545,7 +626,7 @@
     <div class="modal-overlay" id="loginModal">
         <div class="modal-card">
             <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
-            <h3><i class="fas fa-lock" style="color:#2563eb;"></i> Admin Login</h3>
+            <h3><i class="fas fa-lock" style="color:#2a5298;"></i> Admin Login</h3>
             <p>Enter your credentials to access admin features</p>
             <div class="input-group">
                 <label>Email</label>
@@ -898,12 +979,12 @@
                 const avgTenure = tenures.length ? (tenures.reduce((a,b)=>a+b,0)/tenures.length).toFixed(1) : 'N/A';
 
                 document.getElementById('summaryCards').innerHTML = `
-                    <div class="card"><div class="card-title"><i class="fas fa-user-check" style="color:#2563eb;"></i> Active</div><div class="card-value">${activeCount}</div><div class="card-foot">${retentionRate}% retention</div></div>
-                    <div class="card"><div class="card-title"><i class="fas fa-user-slash" style="color:#2563eb;"></i> Inactive</div><div class="card-value">${inactiveCount}</div><div class="card-foot">${inactivePct}%</div></div>
-                    <div class="card"><div class="card-title"><i class="fas fa-users" style="color:#2563eb;"></i> Total</div><div class="card-value">${total}</div><div class="card-foot">${teamsCount} teams</div></div>
-                    <div class="card"><div class="card-title"><i class="fas fa-calendar-week" style="color:#2563eb;"></i> Avg Age</div><div class="card-value">${(filtered.reduce((acc,d)=>acc+ (+d.age||0),0)/total || 0).toFixed(1)}</div><div class="card-foot">years</div></div>
-                    <div class="card"><div class="card-title"><i class="fas fa-hourglass-half" style="color:#2563eb;"></i> Avg Tenure</div><div class="card-value">${avgTenure}</div><div class="card-foot">months (as of month end)</div></div>
-                    <div class="card"><div class="card-title"><i class="fas fa-chart-line" style="color:#2563eb;"></i> Retention</div><div class="card-value">${retentionRate}%</div><div class="card-foot">overall</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-user-check" style="color:#2a5298;"></i> Active</div><div class="card-value">${activeCount}</div><div class="card-foot">${retentionRate}% retention</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-user-slash" style="color:#2a5298;"></i> Inactive</div><div class="card-value">${inactiveCount}</div><div class="card-foot">${inactivePct}%</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-users" style="color:#2a5298;"></i> Total</div><div class="card-value">${total}</div><div class="card-foot">${teamsCount} teams</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-calendar-week" style="color:#2a5298;"></i> Avg Age</div><div class="card-value">${(filtered.reduce((acc,d)=>acc+ (+d.age||0),0)/total || 0).toFixed(1)}</div><div class="card-foot">years</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-hourglass-half" style="color:#2a5298;"></i> Avg Tenure</div><div class="card-value">${avgTenure}</div><div class="card-foot">months (as of month end)</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-chart-line" style="color:#2a5298;"></i> Retention</div><div class="card-value">${retentionRate}%</div><div class="card-foot">overall</div></div>
                 `;
 
                 // Source chart
@@ -919,10 +1000,10 @@
                 sourceChart = new Chart(document.getElementById('sourceChart'), {
                     type: 'bar',
                     data: { labels: srcLabels, datasets: [
-                        { label: 'Active', data: srcActive, backgroundColor: '#22c55e' },
-                        { label: 'Inactive', data: srcInactive, backgroundColor: '#ef4444' }
+                        { label: 'Active', data: srcActive, backgroundColor: '#2a5298' },
+                        { label: 'Inactive', data: srcInactive, backgroundColor: '#e87979' }
                     ]},
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b' } } } }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
                 });
 
                 // Team chart
@@ -938,10 +1019,10 @@
                 teamChart = new Chart(document.getElementById('teamChart'), {
                     type: 'bar',
                     data: { labels: teamLabels, datasets: [
-                        { label: 'Active', data: teamActive, backgroundColor: '#22c55e' },
-                        { label: 'Inactive', data: teamInactive, backgroundColor: '#ef4444' }
+                        { label: 'Active', data: teamActive, backgroundColor: '#2a5298' },
+                        { label: 'Inactive', data: teamInactive, backgroundColor: '#e87979' }
                     ]},
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b' } } } }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
                 });
 
                 // Gender
@@ -955,7 +1036,7 @@
                 genderChart = new Chart(document.getElementById('genderChart'), {
                     type: 'doughnut',
                     data: { labels: ['Female','Male','Other'], datasets: [{ data: [genderCounts.Female, genderCounts.Male, genderCounts.Other], backgroundColor: ['#ec4899','#3b82f6','#94a3b8'] }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b' } } } }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
                 });
 
                 // Salary brackets (active only)
@@ -965,7 +1046,7 @@
                 salaryChart = new Chart(document.getElementById('salaryChart'), {
                     type: 'bar',
                     data: { labels: brackets, datasets: [{ label: 'Active', data: bracketCounts, backgroundColor: '#fbbf24' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b' } } } }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
                 });
 
                 // Tenure distribution
@@ -985,8 +1066,8 @@
                 if (tenureChart) tenureChart.destroy();
                 tenureChart = new Chart(document.getElementById('tenureChart'), {
                     type: 'bar',
-                    data: { labels: labels, datasets: [{ label: 'Employees', data: counts, backgroundColor: '#2563eb' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b' } } } }
+                    data: { labels: labels, datasets: [{ label: 'Employees', data: counts, backgroundColor: '#2a5298' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
                 });
 
                 // Team Retention table
