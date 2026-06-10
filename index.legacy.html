@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Konnect · Demographics Portal</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- SheetJS (XLSX) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <!-- Supabase client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        /* ========== REHIRE RATE ANALYZER DESIGN THEME ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f6;
+            font-family: 'Inter', sans-serif;
+            color: #1a2634;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+            width: 100%;
+        }
+
+        .dashboard {
+            width: 100%;
+        }
+
+        /* Header – rehire style */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            background: transparent;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e2a3a;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text span {
+            color: #2a5298;
+            font-weight: 500;
+        }
+
+        .badge {
+            background: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #2a5298;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lock-btn, .logout-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .lock-btn:hover, .logout-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .role-badge {
+            background: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2a5298;
+            border: none;
+        }
+
+        /* Upload area – card style */
+        .upload-area {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+        }
+
+        .upload-area input {
+            padding: 10px 14px;
+            font-size: 13px;
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            flex-grow: 1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .upload-area button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .upload-area button:hover {
+            background: #1e3c72;
+        }
+
+        /* Month bar – card style */
+        .month-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+        }
+
+        .month-bar select {
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 14px;
+            min-width: 200px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .month-bar button {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .month-bar button:hover {
+            background: #e6edf4;
+        }
+
+        /* Filter bar – clean card */
+        .filter-bar {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            align-items: flex-end;
+            border: 1px solid #eef2f6;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 140px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4b5565;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .reset-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            margin-left: auto;
+            transition: 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #e6edf4;
+        }
+
+        /* Cards – totals section */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+            transition: transform 0.1s ease;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #5b6e8c;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #1e2a3a;
+            line-height: 1.1;
+        }
+
+        .card-foot {
+            margin-top: 12px;
+            color: #6c7a91;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Charts row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+        /* Last row with single chart (tenure only) */
+        .charts-row:last-of-type {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px 20px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+        }
+
+        .chart-header h3 {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #1e2a3a;
+            letter-spacing: -0.2px;
+        }
+
+        canvas {
+            max-height: 220px;
+            width: 100%;
+        }
+
+        /* Tables – clean & minimal */
+        .team-retention-card,
+        .area-card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 20px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+        }
+
+        .retention-table,
+        .area-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .retention-table th,
+        .area-table th {
+            text-align: left;
+            padding: 12px 8px 10px;
+            font-weight: 600;
+            color: #2a5298;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .retention-table td,
+        .area-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f0f2f6;
+        }
+
+        .badge-rate {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .rate-high {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .rate-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* Employee table */
+        .employee-table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 16px;
+            border: 1px solid #eef2f6;
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+        }
+
+        .employee-table th {
+            background: #f9fafb;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #2a5298;
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .employee-table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #f0f2f6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .active {
+            background: #e0f2e9;
+            color: #0b5e42;
+        }
+
+        .inactive {
+            background: #ffe6e5;
+            color: #a12b2b;
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            text-align: right;
+            font-size: 13px;
+            color: #7e8c9e;
+        }
+
+        .tenure-col {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        /* Modal – matching theme */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 380px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .modal-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1e2a3a;
+        }
+        .modal-card p {
+            font-size: 14px;
+            color: #5b6e8c;
+            margin-bottom: 24px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px; right: 22px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+        }
+        .modal-btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .error-message {
+            font-size: 14px;
+            color: #dc2626;
+            margin-top: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard (always visible) -->
+    <div class="dashboard-container" id="dashboardContainer">
+        <div class="dashboard">
+            <!-- Header with lock and logout -->
+            <div class="header">
+                <div class="logo-area">
+                    <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="logo-text">Alpha<span>Konnect</span></div>
+                </div>
+                <div class="header-actions">
+                    <div class="badge"><i class="fas fa-cloud"></i> Supabase</div>
+                    <span class="role-badge" id="roleDisplay">Viewer</span>
+                    <button class="lock-btn" id="lockBtn"><i class="fas fa-lock"></i> Admin</button>
+                    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+
+            <!-- Month selector bar -->
+            <div class="month-bar">
+                <i class="fas fa-calendar-alt" style="color:#2a5298;"></i>
+                <select id="monthSelector">
+                    <option value="">-- Select a month --</option>
+                </select>
+                <!-- Admin-only delete button (hidden initially) -->
+                <button id="deleteMonthBtn" style="display:none;"><i class="fas fa-trash-alt"></i> Delete</button>
+                <span id="monthStatus" style="color:#6c7a91; margin-left:auto;"></span>
+            </div>
+
+            <!-- Admin-only upload area (hidden initially) -->
+            <div class="upload-area" id="uploadArea" style="display: none;">
+                <input type="file" id="fileInput" accept=".xlsx, .xls">
+                <button id="uploadBtn"><i class="fas fa-upload"></i> Upload & Store</button>
+                <span id="uploadStatus" style="color:#6c7a91;"></span>
+            </div>
+
+            <!-- Filter bar (populated by JS) -->
+            <div class="filter-bar" id="filterBar" style="display: none;"></div>
+
+            <!-- Summary cards -->
+            <div class="cards" id="summaryCards"></div>
+
+            <!-- Charts -->
+            <div class="charts-row">
+                <div class="chart-card"><div class="chart-header"><h3>Source Effectiveness</h3></div><div class="chart-container"><canvas id="sourceChart"></canvas></div></div>
+                <div class="chart-card"><div class="chart-header"><h3>Team Composition</h3></div><div class="chart-container"><canvas id="teamChart"></canvas></div></div>
+            </div>
+            <div class="charts-row">
+                <div class="chart-card"><div class="chart-header"><h3>Gender Distribution</h3></div><div class="chart-container"><canvas id="genderChart"></canvas></div></div>
+                <div class="chart-card"><div class="chart-header"><h3>Salary Brackets (Active)</h3></div><div class="chart-container"><canvas id="salaryChart"></canvas></div></div>
+            </div>
+            <!-- Last row: only Tenure Distribution chart (full width) -->
+            <div class="charts-row">
+                <div class="chart-card"><div class="chart-header"><h3>Tenure Distribution (months)</h3></div><div class="chart-container"><canvas id="tenureChart"></canvas></div></div>
+            </div>
+
+            <!-- Team Retention Table -->
+            <div class="team-retention-card">
+                <div class="chart-header"><h3><i class="fas fa-users-retain" style="color:#2a5298;"></i> Team Retention</h3></div>
+                <table class="retention-table">
+                    <thead><tr><th>Team</th><th>Total Agents</th><th>Retained (Active)</th><th>Retention %</th></tr></thead>
+                    <tbody id="teamRetentionBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Area retention with Tenure -->
+            <div class="area-card">
+                <div class="chart-header"><h3>Area Retention & Average Tenure</h3></div>
+                <table class="area-table">
+                    <thead><tr><th>Area</th><th>Total</th><th>Active</th><th>Inactive</th><th>Inactive %</th><th>Avg Tenure (months)</th><th>Trend</th></tr></thead>
+                    <tbody id="areaTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Employee table -->
+            <div class="chart-card" style="padding:0; overflow:hidden;">
+                <div style="padding:20px 24px 0;"><h3>Employee List · Start Date & Tenure (as of month end)</h3></div>
+                <div class="employee-table-wrapper">
+                    <table class="employee-table">
+                        <thead><tr><th>Name</th><th>Team</th><th>Age</th><th>Gender</th><th>Area</th><th>Kids</th><th>Source</th><th>Start Date</th><th>Tenure (months)</th><th>Status</th></tr></thead>
+                        <tbody id="employeeTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="footer-note"><i class="far fa-clock"></i> Tenure = last day of month − start date · Retention shown per team</div>
+        </div>
+    </div>
+
+    <!-- Login Modal (hidden by default) -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-card">
+            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            <h3><i class="fas fa-lock" style="color:#2a5298;"></i> Admin Login</h3>
+            <p>Enter your credentials to access admin features</p>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="text" id="modalEmail" placeholder="admin or access">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="modalPassword" placeholder="••••••••">
+            </div>
+            <button class="modal-btn" id="modalLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <div class="error-message" id="modalError"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Supabase config
+            const SUPABASE_URL = 'https://vnuvmbnlxhhhbfpiwzef.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZudXZtYm5seGhoaGJmcGl3emVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNzUzNDIsImV4cCI6MjA4Nzc1MTM0Mn0.jnImxezvHLiRCdUkgBLgQ97uW-9FHpfcgL3ipvOLpas';
+            const { createClient } = supabase;
+            const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            // Hardcoded users (same as before)
+            const USERS = {
+                admin: { email: "admin", password: "ak2026", role: "admin" },
+                user:  { email: "access", password: "user01", role: "viewer" }
+            };
+
+            // DOM elements
+            const dashboardContainer = document.getElementById('dashboardContainer');
+            const roleDisplay = document.getElementById('roleDisplay');
+            const uploadArea = document.getElementById('uploadArea');
+            const deleteMonthBtn = document.getElementById('deleteMonthBtn');
+            const lockBtn = document.getElementById('lockBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const modalOverlay = document.getElementById('loginModal');
+            const modalClose = document.getElementById('modalClose');
+            const modalEmail = document.getElementById('modalEmail');
+            const modalPassword = document.getElementById('modalPassword');
+            const modalLoginBtn = document.getElementById('modalLoginBtn');
+            const modalError = document.getElementById('modalError');
+
+            // State
+            let currentRole = 'viewer';          // default role
+            let currentData = [];
+            let currentMonthKey = null;
+            let currentLastDay = null;
+
+            // Chart instances
+            let sourceChart, teamChart, genderChart, salaryChart, tenureChart;
+
+            // Branch/team mapping (unchanged)
+            const branchTeams = {
+                "Invnt": ["Team Prosper", "Team Chad", "Team Moses", "Team Sonwabile", "Invnt Incubation"],
+                "Alpha": ["Team Popo", "Team Khaya", "Team Isipho", "Team Ayabonga", "Alpha Incubation"]
+            };
+
+            function getBranch(team) {
+                for (let [branch, teams] of Object.entries(branchTeams)) {
+                    if (teams.includes(team)) return branch;
+                }
+                return "Other";
+            }
+
+            const unique = (arr) => [...new Set(arr)];
+
+            // Date helpers (unchanged)
+            function parseDateFromCell(value) {
+                if (!value) return null;
+                if (typeof value === 'number') {
+                    const utcDays = Math.floor(value - 25569);
+                    return new Date(utcDays * 86400 * 1000);
+                }
+                if (typeof value === 'string') {
+                    const datePart = value.split(' ')[0];
+                    const d = new Date(datePart + 'T00:00:00');
+                    return isNaN(d) ? null : d;
+                }
+                return null;
+            }
+            function formatDate(date) {
+                if (!date) return '';
+                try { return date.toISOString().split('T')[0]; } catch { return ''; }
+            }
+            function monthsBetween(start, end) {
+                if (!start || !end) return null;
+                const years = end.getFullYear() - start.getFullYear();
+                const months = end.getMonth() - start.getMonth();
+                return years * 12 + months;
+            }
+            function computeTenure(emp, lastDay) {
+                const start = emp.startDateObj;
+                if (!start || !lastDay) return null;
+                return monthsBetween(start, lastDay);
+            }
+            function extractMonthFromFilename(filename) {
+                const match = filename.match(/([A-Za-z]+ \d{4})/);
+                return match ? match[1] : null;
+            }
+            function displayMonthToKey(display) {
+                const months = {'January':'01','February':'02','March':'03','April':'04','May':'05','June':'06',
+                    'July':'07','August':'08','September':'09','October':'10','November':'11','December':'12'};
+                const parts = display.split(' ');
+                if (parts.length !== 2) return display.replace(/\s+/g, '_');
+                const monthName = parts[0], year = parts[1];
+                const monthNum = months[monthName];
+                return monthNum ? `${year}-${monthNum}` : display.replace(/\s+/g, '_');
+            }
+            function keyToDisplayMonth(key) {
+                const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                if (!key.includes('-')) return key.replace(/_/g, ' ');
+                const [year, monthNum] = key.split('-');
+                const monthIndex = parseInt(monthNum,10)-1;
+                return (monthIndex>=0 && monthIndex<12) ? `${months[monthIndex]} ${year}` : key;
+            }
+
+            // Supabase data functions
+            async function fetchMonthKeys() {
+                const { data, error } = await supabaseClient
+                    .from('monthly_data')
+                    .select('month_key')
+                    .order('month_key', { ascending: false });
+                if (error) {
+                    console.error('Error fetching months:', error);
+                    return [];
+                }
+                return data.map(row => row.month_key);
+            }
+            async function fetchMonthData(monthKey) {
+                const { data, error } = await supabaseClient
+                    .from('monthly_data')
+                    .select('data')
+                    .eq('month_key', monthKey)
+                    .single();
+                if (error || !data) {
+                    console.error('Error fetching month data:', error);
+                    return null;
+                }
+                data.data.forEach(emp => {
+                    if (emp.startDate) emp.startDateObj = parseDateFromCell(emp.startDate);
+                });
+                return data.data;
+            }
+            async function storeMonthData(monthKey, dataArray) {
+                const clean = dataArray.map(emp => {
+                    const { startDateObj, ...rest } = emp;
+                    return rest;
+                });
+                const { error } = await supabaseClient
+                    .from('monthly_data')
+                    .upsert({ month_key: monthKey, data: clean }, { onConflict: 'month_key' });
+                if (error) throw error;
+            }
+            async function deleteMonthData(monthKey) {
+                const { error } = await supabaseClient
+                    .from('monthly_data')
+                    .delete()
+                    .eq('month_key', monthKey);
+                if (error) throw error;
+            }
+
+            // UI update functions
+            async function refreshMonthSelector(selectedKey = null) {
+                const select = document.getElementById('monthSelector');
+                const months = await fetchMonthKeys();
+                select.innerHTML = '<option value="">-- Select a month --</option>';
+                months.forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = keyToDisplayMonth(key);
+                    select.appendChild(option);
+                });
+                if (selectedKey && months.includes(selectedKey)) {
+                    select.value = selectedKey;
+                    await loadMonth(selectedKey);
+                } else if (months.length > 0) {
+                    select.value = months[0];
+                    await loadMonth(months[0]);
+                } else {
+                    document.getElementById('filterBar').style.display = 'none';
+                    document.getElementById('summaryCards').innerHTML = '';
+                    clearCharts();
+                    document.getElementById('monthStatus').innerText = '';
+                }
+            }
+
+            async function loadMonth(key) {
+                const data = await fetchMonthData(key);
+                if (!data) return;
+                currentData = data;
+                currentMonthKey = key;
+                const [year, month] = key.split('-').map(Number);
+                currentLastDay = new Date(year, month, 0);
+                renderDashboard(data);
+                document.getElementById('monthStatus').innerText = `Showing ${keyToDisplayMonth(key)} (tenure as of ${formatDate(currentLastDay)})`;
+            }
+
+            function clearCharts() {
+                if (sourceChart) sourceChart.destroy();
+                if (teamChart) teamChart.destroy();
+                if (genderChart) genderChart.destroy();
+                if (salaryChart) salaryChart.destroy();
+                if (tenureChart) tenureChart.destroy();
+                sourceChart = teamChart = genderChart = salaryChart = tenureChart = null;
+            }
+
+            // Excel parsing
+            function rowToObject(row, status) {
+                const obj = {
+                    startDate: row[0],
+                    name: row[1] ? row[1].toString().trim() : '',
+                    team: row[2] ? row[2].toString().trim() : '',
+                    age: parseInt(row[3]) || 0,
+                    gender: row[5] ? row[5].toString().trim() : '',
+                    nationality: row[6] ? row[6].toString().trim() : '',
+                    qualification: row[7] ? row[7].toString().trim() : '',
+                    area: row[8] ? row[8].toString().trim() : '',
+                    kids: row[9] || 0,
+                    housing: row[10] ? row[10].toString().trim() : '',
+                    experience: row[11] ? row[11].toString().trim() : '',
+                    salaryExact: row[12] ? row[12].toString().trim() : '',
+                    salaryBracket: row[13] ? row[13].toString().trim() : '',
+                    source: row[14] ? row[14].toString().trim() : '',
+                    status: status
+                };
+                obj.startDateObj = parseDateFromCell(obj.startDate);
+                return obj;
+            }
+            function parseExcel(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[firstSheetName];
+                        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        const inactiveHeaderIndex = rows.findIndex(row => 
+                            row[0] && typeof row[0] === 'string' && row[0].toLowerCase().includes('inactive start dates')
+                        );
+                        if (inactiveHeaderIndex === -1) {
+                            reject('Could not find "Inactive Start Dates" section in the sheet.');
+                            return;
+                        }
+                        const activeRows = rows.slice(1, inactiveHeaderIndex).filter(r => r[1] && r[1].toString().trim() !== '');
+                        const inactiveRows = rows.slice(inactiveHeaderIndex + 1).filter(r => r[1] && r[1].toString().trim() !== '');
+                        const activeData = activeRows.map(row => rowToObject(row, 'active'));
+                        const inactiveData = inactiveRows.map(row => rowToObject(row, 'inactive'));
+                        resolve([...activeData, ...inactiveData]);
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+
+            // Render dashboard (exactly as before, but uses currentRole for visibility)
+            function renderDashboard(data) {
+                document.getElementById('filterBar').style.display = 'flex';
+
+                const branches = unique(data.map(d => getBranch(d.team))).sort();
+                branches.unshift('All');
+                const filterBar = document.getElementById('filterBar');
+                filterBar.innerHTML = `
+                    <div class="filter-group"><label><i class="fas fa-code-branch"></i> Branch</label><select id="branchFilter">${branches.map(b => `<option value="${b}">${b}</option>`).join('')}</select></div>
+                    <div class="filter-group"><label><i class="fas fa-toggle-on"></i> Status</label><select id="statusFilter"><option value="ALL">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                    <div class="filter-group"><label>Team</label><select id="teamFilter"><option value="ALL">All Teams</option></select></div>
+                    <div class="filter-group"><label>Source</label><select id="sourceFilter"><option value="ALL">All Sources</option></select></div>
+                    <div class="filter-group"><label>Gender</label><select id="genderFilter"><option value="ALL">All Genders</option></select></div>
+                    <div class="filter-group"><label>Area</label><select id="areaFilter"><option value="ALL">All Areas</option></select></div>
+                    <button class="reset-btn" id="resetFilters"><i class="fas fa-undo-alt"></i> Reset</button>
+                `;
+
+                document.getElementById('branchFilter').addEventListener('change', updateTeamOptions);
+                document.getElementById('branchFilter').addEventListener('change', applyFilters);
+                document.getElementById('statusFilter').addEventListener('change', applyFilters);
+                document.getElementById('teamFilter').addEventListener('change', applyFilters);
+                document.getElementById('sourceFilter').addEventListener('change', applyFilters);
+                document.getElementById('genderFilter').addEventListener('change', applyFilters);
+                document.getElementById('areaFilter').addEventListener('change', applyFilters);
+                document.getElementById('resetFilters').addEventListener('click', resetAllFilters);
+
+                const sources = unique(data.map(d => d.source).filter(Boolean)).sort();
+                const genders = unique(data.map(d => d.gender).filter(Boolean)).sort();
+                const areas = unique(data.map(d => d.area).filter(Boolean)).sort();
+                document.getElementById('sourceFilter').innerHTML = '<option value="ALL">All Sources</option>' + sources.map(s => `<option value="${s}">${s}</option>`).join('');
+                document.getElementById('genderFilter').innerHTML = '<option value="ALL">All Genders</option>' + genders.map(g => `<option value="${g}">${g}</option>`).join('');
+                document.getElementById('areaFilter').innerHTML = '<option value="ALL">All Areas</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+
+                updateTeamOptions();
+                applyFilters();
+            }
+
+            function updateTeamOptions() {
+                const branch = document.getElementById('branchFilter').value;
+                let teamsInBranch = [];
+                if (branch === 'All') {
+                    teamsInBranch = unique(currentData.map(d => d.team)).sort();
+                } else {
+                    const teamList = branchTeams[branch] || [];
+                    if (branch === 'Other') {
+                        const allTeams = unique(currentData.map(d => d.team));
+                        teamsInBranch = allTeams.filter(t => getBranch(t) === 'Other');
+                    } else {
+                        teamsInBranch = teamList.filter(t => currentData.some(d => d.team === t));
+                    }
+                }
+                const teamSelect = document.getElementById('teamFilter');
+                teamSelect.innerHTML = '<option value="ALL">All Teams</option>' + 
+                    teamsInBranch.map(t => `<option value="${t}">${t}</option>`).join('');
+            }
+
+            function resetAllFilters() {
+                document.getElementById('branchFilter').value = 'All';
+                document.getElementById('statusFilter').value = 'ALL';
+                updateTeamOptions();
+                document.getElementById('teamFilter').value = 'ALL';
+                document.getElementById('sourceFilter').value = 'ALL';
+                document.getElementById('genderFilter').value = 'ALL';
+                document.getElementById('areaFilter').value = 'ALL';
+                applyFilters();
+            }
+
+            function getFilteredData() {
+                const branch = document.getElementById('branchFilter')?.value || 'All';
+                const status = document.getElementById('statusFilter')?.value || 'ALL';
+                const team = document.getElementById('teamFilter')?.value || 'ALL';
+                const source = document.getElementById('sourceFilter')?.value || 'ALL';
+                const gender = document.getElementById('genderFilter')?.value || 'ALL';
+                const area = document.getElementById('areaFilter')?.value || 'ALL';
+                return currentData.filter(d => {
+                    if (branch !== 'All' && getBranch(d.team) !== branch) return false;
+                    if (status !== 'ALL' && d.status !== status) return false;
+                    if (team !== 'ALL' && d.team !== team) return false;
+                    if (source !== 'ALL' && d.source !== source) return false;
+                    if (gender !== 'ALL' && d.gender !== gender) return false;
+                    if (area !== 'ALL' && d.area !== area) return false;
+                    return true;
+                });
+            }
+
+            function applyFilters() {
+                const filtered = getFilteredData();
+                const total = filtered.length;
+                const activeCount = filtered.filter(d => d.status === 'active').length;
+                const inactiveCount = filtered.filter(d => d.status === 'inactive').length;
+                const inactivePct = total ? ((inactiveCount / total) * 100).toFixed(1) : 0;
+                const teamsCount = unique(filtered.map(d => d.team)).length;
+                const retentionRate = total ? ((activeCount / total) * 100).toFixed(1) : 0;
+
+                const tenures = filtered.map(d => computeTenure(d, currentLastDay)).filter(t => t !== null && !isNaN(t));
+                const avgTenure = tenures.length ? (tenures.reduce((a,b)=>a+b,0)/tenures.length).toFixed(1) : 'N/A';
+
+                document.getElementById('summaryCards').innerHTML = `
+                    <div class="card"><div class="card-title"><i class="fas fa-user-check" style="color:#2a5298;"></i> Active</div><div class="card-value">${activeCount}</div><div class="card-foot">${retentionRate}% retention</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-user-slash" style="color:#2a5298;"></i> Inactive</div><div class="card-value">${inactiveCount}</div><div class="card-foot">${inactivePct}%</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-users" style="color:#2a5298;"></i> Total</div><div class="card-value">${total}</div><div class="card-foot">${teamsCount} teams</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-calendar-week" style="color:#2a5298;"></i> Avg Age</div><div class="card-value">${(filtered.reduce((acc,d)=>acc+ (+d.age||0),0)/total || 0).toFixed(1)}</div><div class="card-foot">years</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-hourglass-half" style="color:#2a5298;"></i> Avg Tenure</div><div class="card-value">${avgTenure}</div><div class="card-foot">months (as of month end)</div></div>
+                    <div class="card"><div class="card-title"><i class="fas fa-chart-line" style="color:#2a5298;"></i> Retention</div><div class="card-value">${retentionRate}%</div><div class="card-foot">overall</div></div>
+                `;
+
+                // Source chart
+                const srcGroups = {};
+                filtered.forEach(d => {
+                    if (!srcGroups[d.source]) srcGroups[d.source] = { active:0, inactive:0 };
+                    srcGroups[d.source][d.status]++;
+                });
+                const srcLabels = Object.keys(srcGroups).sort();
+                const srcActive = srcLabels.map(s => srcGroups[s].active || 0);
+                const srcInactive = srcLabels.map(s => srcGroups[s].inactive || 0);
+                if (sourceChart) sourceChart.destroy();
+                sourceChart = new Chart(document.getElementById('sourceChart'), {
+                    type: 'bar',
+                    data: { labels: srcLabels, datasets: [
+                        { label: 'Active', data: srcActive, backgroundColor: '#2a5298' },
+                        { label: 'Inactive', data: srcInactive, backgroundColor: '#e87979' }
+                    ]},
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
+                });
+
+                // Team chart
+                const teamGroups = {};
+                filtered.forEach(d => {
+                    if (!teamGroups[d.team]) teamGroups[d.team] = { active:0, inactive:0 };
+                    teamGroups[d.team][d.status]++;
+                });
+                const teamLabels = Object.keys(teamGroups).sort();
+                const teamActive = teamLabels.map(t => teamGroups[t].active || 0);
+                const teamInactive = teamLabels.map(t => teamGroups[t].inactive || 0);
+                if (teamChart) teamChart.destroy();
+                teamChart = new Chart(document.getElementById('teamChart'), {
+                    type: 'bar',
+                    data: { labels: teamLabels, datasets: [
+                        { label: 'Active', data: teamActive, backgroundColor: '#2a5298' },
+                        { label: 'Inactive', data: teamInactive, backgroundColor: '#e87979' }
+                    ]},
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
+                });
+
+                // Gender
+                const genderCounts = { Female:0, Male:0, Other:0 };
+                filtered.forEach(d => {
+                    if (d.gender === 'Female') genderCounts.Female++;
+                    else if (d.gender === 'Male') genderCounts.Male++;
+                    else genderCounts.Other++;
+                });
+                if (genderChart) genderChart.destroy();
+                genderChart = new Chart(document.getElementById('genderChart'), {
+                    type: 'doughnut',
+                    data: { labels: ['Female','Male','Other'], datasets: [{ data: [genderCounts.Female, genderCounts.Male, genderCounts.Other], backgroundColor: ['#ec4899','#3b82f6','#94a3b8'] }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
+                });
+
+                // Salary brackets (active only)
+                const brackets = ['0-R3000', 'R3001-R6000', 'R6001-R8000', 'R8001-R14000'];
+                const bracketCounts = brackets.map(b => filtered.filter(d => d.status==='active' && d.salaryBracket === b).length);
+                if (salaryChart) salaryChart.destroy();
+                salaryChart = new Chart(document.getElementById('salaryChart'), {
+                    type: 'bar',
+                    data: { labels: brackets, datasets: [{ label: 'Active', data: bracketCounts, backgroundColor: '#fbbf24' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
+                });
+
+                // Tenure distribution
+                const tenureValues = filtered.map(d => computeTenure(d, currentLastDay)).filter(t => t !== null && !isNaN(t));
+                const labels = ['0-6m', '6-12m', '12-18m', '18-24m', '24-36m', '36-48m', '48-60m', '60m+'];
+                const counts = new Array(labels.length).fill(0);
+                tenureValues.forEach(t => {
+                    if (t < 6) counts[0]++;
+                    else if (t < 12) counts[1]++;
+                    else if (t < 18) counts[2]++;
+                    else if (t < 24) counts[3]++;
+                    else if (t < 36) counts[4]++;
+                    else if (t < 48) counts[5]++;
+                    else if (t < 60) counts[6]++;
+                    else counts[7]++;
+                });
+                if (tenureChart) tenureChart.destroy();
+                tenureChart = new Chart(document.getElementById('tenureChart'), {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [{ label: 'Employees', data: counts, backgroundColor: '#2a5298' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#1e293b', font: { size: 11 } } } } }
+                });
+
+                // Team Retention table
+                const teamRetMap = {};
+                filtered.forEach(d => {
+                    if (!teamRetMap[d.team]) teamRetMap[d.team] = { total:0, active:0 };
+                    teamRetMap[d.team].total++;
+                    if (d.status === 'active') teamRetMap[d.team].active++;
+                });
+                const teamRows = Object.entries(teamRetMap).sort((a,b) => a[0].localeCompare(b[0]));
+                document.getElementById('teamRetentionBody').innerHTML = teamRows.map(([team, counts]) => {
+                    const retention = counts.total ? ((counts.active / counts.total) * 100).toFixed(1) : 0;
+                    return `<tr><td>${team}</td><td>${counts.total}</td><td>${counts.active}</td><td>${retention}%</td></tr>`;
+                }).join('');
+
+                // Area retention with tenure
+                const areaMap = {};
+                filtered.forEach(d => {
+                    if (!areaMap[d.area]) areaMap[d.area] = { active:0, inactive:0, total:0, tenures: [] };
+                    areaMap[d.area][d.status]++;
+                    areaMap[d.area].total++;
+                    const tenure = computeTenure(d, currentLastDay);
+                    if (tenure !== null) areaMap[d.area].tenures.push(tenure);
+                });
+                const areasSorted = Object.keys(areaMap).sort((a,b) => areaMap[b].total - areaMap[a].total);
+                document.getElementById('areaTableBody').innerHTML = areasSorted.map(area => {
+                    const a = areaMap[area];
+                    const inactPct = a.total ? ((a.inactive / a.total)*100).toFixed(1) : 0;
+                    const avgTenureArea = a.tenures.length ? (a.tenures.reduce((s,t)=>s+t,0)/a.tenures.length).toFixed(1) : '—';
+                    const rateClass = inactPct >= 30 ? 'rate-high' : (inactPct <= 10 ? 'rate-low' : '');
+                    return `<tr><td>${area}</td><td>${a.total}</td><td>${a.active}</td><td>${a.inactive}</td><td><span class="badge-rate ${rateClass}">${inactPct}%</span></td><td>${avgTenureArea}</td><td>${inactPct > 30 ? '🔴 High' : (inactPct > 15 ? '🟡 Moderate' : '🟢 Stable')}</td></tr>`;
+                }).join('');
+
+                // Employee table
+                document.getElementById('employeeTableBody').innerHTML = filtered.map(d => {
+                    const startStr = d.startDateObj ? formatDate(d.startDateObj) : '';
+                    const tenure = computeTenure(d, currentLastDay);
+                    const tenureDisplay = (tenure !== null && !isNaN(tenure)) ? tenure.toFixed(0) : '—';
+                    return `<tr>
+                        <td>${d.name}</td><td>${d.team}</td><td>${d.age}</td><td>${d.gender}</td><td>${d.area}</td><td>${d.kids}</td><td>${d.source}</td>
+                        <td>${startStr}</td><td class="tenure-col">${tenureDisplay}</td>
+                        <td><span class="status-badge ${d.status}">${d.status}</span></td>
+                    </tr>`;
+                }).join('');
+            }
+
+            // Role management
+            function setRole(role) {
+                currentRole = role;
+                roleDisplay.innerText = role === 'admin' ? 'Admin' : 'Viewer';
+                if (role === 'admin') {
+                    uploadArea.style.display = 'flex';
+                    deleteMonthBtn.style.display = 'inline-block';
+                } else {
+                    uploadArea.style.display = 'none';
+                    deleteMonthBtn.style.display = 'none';
+                }
+            }
+
+            // Event listeners
+            document.getElementById('uploadBtn').addEventListener('click', async function() {
+                if (currentRole !== 'admin') {
+                    alert('Only admin can upload.');
+                    return;
+                }
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('Please select an Excel file.');
+                    return;
+                }
+                const statusSpan = document.getElementById('uploadStatus');
+                statusSpan.innerText = 'Processing...';
+                let displayMonth = extractMonthFromFilename(file.name);
+                if (!displayMonth) {
+                    displayMonth = prompt('Could not detect month from filename. Please enter month (e.g., January 2026):');
+                    if (!displayMonth) {
+                        statusSpan.innerText = 'Upload cancelled.';
+                        return;
+                    }
+                }
+                try {
+                    const data = await parseExcel(file);
+                    const key = displayMonthToKey(displayMonth);
+                    await storeMonthData(key, data);
+                    statusSpan.innerText = `Stored ${data.length} employees for ${displayMonth}.`;
+                    await refreshMonthSelector(key);
+                    fileInput.value = '';
+                } catch (err) {
+                    console.error(err);
+                    statusSpan.innerText = 'Error parsing file.';
+                    alert('Failed to parse Excel. See console.');
+                }
+            });
+
+            document.getElementById('monthSelector').addEventListener('change', async function(e) {
+                const key = e.target.value;
+                if (key) {
+                    await loadMonth(key);
+                } else {
+                    document.getElementById('filterBar').style.display = 'none';
+                    document.getElementById('summaryCards').innerHTML = '';
+                    clearCharts();
+                    document.getElementById('monthStatus').innerText = '';
+                }
+            });
+
+            document.getElementById('deleteMonthBtn').addEventListener('click', async function() {
+                if (currentRole !== 'admin') {
+                    alert('Only admin can delete.');
+                    return;
+                }
+                const select = document.getElementById('monthSelector');
+                const key = select.value;
+                if (!key) {
+                    alert('Select a month to delete.');
+                    return;
+                }
+                if (confirm(`Delete ${keyToDisplayMonth(key)}?`)) {
+                    await deleteMonthData(key);
+                    await refreshMonthSelector();
+                    document.getElementById('filterBar').style.display = 'none';
+                    document.getElementById('summaryCards').innerHTML = '';
+                    clearCharts();
+                    document.getElementById('monthStatus').innerText = '';
+                }
+            });
+
+            // Lock button – show modal
+            lockBtn.addEventListener('click', () => {
+                modalOverlay.classList.add('show');
+                modalEmail.value = '';
+                modalPassword.value = '';
+                modalError.innerText = '';
+            });
+
+            // Modal close
+            modalClose.addEventListener('click', () => {
+                modalOverlay.classList.remove('show');
+            });
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) modalOverlay.classList.remove('show');
+            });
+
+            // Modal login
+            modalLoginBtn.addEventListener('click', () => {
+                const email = modalEmail.value.trim();
+                const password = modalPassword.value.trim();
+                let foundRole = null;
+                for (let key in USERS) {
+                    if (USERS[key].email === email && USERS[key].password === password) {
+                        foundRole = USERS[key].role;
+                        break;
+                    }
+                }
+                if (foundRole) {
+                    setRole(foundRole);
+                    modalOverlay.classList.remove('show');
+                } else {
+                    modalError.innerText = 'Invalid email or password.';
+                }
+            });
+
+            // Logout button
+            logoutBtn.addEventListener('click', () => {
+                setRole('viewer');
+            });
+
+            // Initialize dashboard with default viewer role
+            (async function init() {
+                setRole('viewer');
+                await refreshMonthSelector();
+            })();
+        })();
+    </script>
+</body>
+</html>
