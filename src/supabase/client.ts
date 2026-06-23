@@ -1,9 +1,17 @@
-import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../config';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { assertSupabaseConfigured, getSupabaseAnonKey, getSupabaseUrl } from '../config';
 
-export const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+let supabaseClientInstance: SupabaseClient | null = null;
+
+export function getSupabaseClient(): SupabaseClient {
+  if (!supabaseClientInstance) {
+    assertSupabaseConfigured();
+    supabaseClientInstance = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
+  }
+  return supabaseClientInstance;
+}

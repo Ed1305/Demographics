@@ -82,15 +82,42 @@ Hardcoded client-side passwords were removed. Admin access is enforced by Supaba
 
 ## Deploy
 
-The app builds to `dist/`. Set the same `VITE_*` environment variables on your host before building.
+The app builds to `dist/`. Set the same `VITE_*` environment variables on your host **before** building (Vite embeds them at build time).
+
+Find keys in Supabase Dashboard → **Project Settings** → **API**.
+
+### Vercel
+
+1. **Import the repo** at [vercel.com/new](https://vercel.com/new) and connect your GitHub repository.
+2. Vercel should auto-detect **Vite**. Confirm:
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+   - **Install Command:** `npm install`
+3. **Before deploying**, open **Environment Variables** and add:
+
+   | Name | Value |
+   |------|--------|
+   | `VITE_SUPABASE_URL` | `https://your-project.supabase.co` |
+   | `VITE_SUPABASE_ANON_KEY` | your Supabase anon (public) key |
+
+   Apply to **Production**, **Preview**, and **Development** so all deploys work.
+4. Click **Deploy**.
+5. If you add or change env vars later: **Project → Settings → Environment Variables**, then **Deployments → … → Redeploy** (a new build is required).
+
+`vercel.json` in this repo sets the Vite build output and SPA routing.
 
 ### Netlify
 
-`netlify.toml` is included. Connect the repo and set:
+`netlify.toml` is included. Connect the repo and configure:
 
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+1. **Site configuration → Environment variables** — add both (required before build):
+   - `VITE_SUPABASE_URL` — e.g. `https://your-project.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY` — your Supabase anon/public key
+2. **Build command:** `npm run build`
+3. **Publish directory:** `dist`
+4. **Redeploy** after adding env vars (Vite embeds them at build time; changing vars requires a new deploy)
+
+Find keys in Supabase Dashboard → **Project Settings** → **API**.
 
 ### Other static hosts
 

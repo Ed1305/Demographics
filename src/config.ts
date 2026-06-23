@@ -1,13 +1,35 @@
-function requireEnv(key: keyof ImportMetaEnv): string {
-  const value = import.meta.env[key];
-  if (!value) {
-    throw new Error(`Missing environment variable: ${key}. Copy .env.example to .env and fill in your Supabase values.`);
-  }
-  return value;
+export function isSupabaseConfigured(): boolean {
+  const url = import.meta.env.VITE_SUPABASE_URL?.trim();
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+  return Boolean(url && anonKey);
 }
 
-export const SUPABASE_URL = requireEnv('VITE_SUPABASE_URL');
-export const SUPABASE_ANON_KEY = requireEnv('VITE_SUPABASE_ANON_KEY');
+export function getSupabaseConfigError(): string | null {
+  const missing: string[] = [];
+  if (!import.meta.env.VITE_SUPABASE_URL?.trim()) missing.push('VITE_SUPABASE_URL');
+  if (!import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()) missing.push('VITE_SUPABASE_ANON_KEY');
+  if (missing.length === 0) return null;
+
+  return (
+    `Missing environment variable${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}. ` +
+    'Copy .env.example to .env for local dev, or set these in your host (e.g. Netlify → Site settings → Environment variables) before building.'
+  );
+}
+
+export function assertSupabaseConfigured(): void {
+  const error = getSupabaseConfigError();
+  if (error) throw new Error(error);
+}
+
+export function getSupabaseUrl(): string {
+  assertSupabaseConfigured();
+  return import.meta.env.VITE_SUPABASE_URL.trim();
+}
+
+export function getSupabaseAnonKey(): string {
+  assertSupabaseConfigured();
+  return import.meta.env.VITE_SUPABASE_ANON_KEY.trim();
+}
 
 export const SALARY_BRACKETS = [
   '0-R3000',

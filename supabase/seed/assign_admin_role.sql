@@ -3,7 +3,7 @@
 
 update auth.users
 set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"admin"}'::jsonb
-where email = 'admin@example.com';
+where email = 'jillian@iconaf.com';
 
 -- Optional viewer account (can sign in but cannot upload/delete):
 -- update auth.users

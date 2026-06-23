@@ -1,6 +1,6 @@
 import { hydrateEmployeeDates, stripRuntimeFields } from '../utils/date';
 import type { Employee, StoredEmployee } from '../types';
-import { supabaseClient } from './client';
+import { getSupabaseClient } from './client';
 
 function formatSupabaseError(context: string, error: { message: string }): Error {
   return new Error(`${context}: ${error.message}`);
@@ -34,7 +34,7 @@ function sanitizeEmployees(employees: Employee[]): StoredEmployee[] {
 }
 
 export async function fetchMonthKeys(): Promise<string[]> {
-  const { data, error } = await supabaseClient
+  const { data, error } = await getSupabaseClient()
     .from('monthly_data')
     .select('month_key')
     .order('month_key', { ascending: false });
@@ -48,7 +48,7 @@ export async function fetchMonthKeys(): Promise<string[]> {
 }
 
 export async function fetchMonthData(monthKey: string): Promise<Employee[] | null> {
-  const { data, error } = await supabaseClient
+  const { data, error } = await getSupabaseClient()
     .from('monthly_data')
     .select('data')
     .eq('month_key', monthKey)
@@ -73,7 +73,7 @@ export async function storeMonthData(monthKey: string, dataArray: Employee[]): P
   }
 
   const clean = sanitizeEmployees(dataArray);
-  const { error } = await supabaseClient
+  const { error } = await getSupabaseClient()
     .from('monthly_data')
     .upsert({ month_key: monthKey, data: clean }, { onConflict: 'month_key' });
 
@@ -81,7 +81,7 @@ export async function storeMonthData(monthKey: string, dataArray: Employee[]): P
 }
 
 export async function deleteMonthData(monthKey: string): Promise<void> {
-  const { error } = await supabaseClient.from('monthly_data').delete().eq('month_key', monthKey);
+  const { error } = await getSupabaseClient().from('monthly_data').delete().eq('month_key', monthKey);
   if (error) throw formatSupabaseError('Failed to delete month data', error);
 }
 
@@ -89,7 +89,7 @@ export async function deleteAllMonthData(): Promise<number> {
   const keys = await fetchMonthKeys();
   if (keys.length === 0) return 0;
 
-  const { error } = await supabaseClient
+  const { error } = await getSupabaseClient()
     .from('monthly_data')
     .delete()
     .in('month_key', keys);

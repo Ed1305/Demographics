@@ -1,5 +1,5 @@
 import type { User } from '@supabase/supabase-js';
-import { supabaseClient } from './supabase/client';
+import { getSupabaseClient } from './supabase/client';
 import { getById } from './utils/dom';
 import type { UserRole } from './types';
 
@@ -43,22 +43,40 @@ export function setRole(role: UserRole, authenticated = false): void {
 export async function initAuth(): Promise<void> {
   const {
     data: { session },
-  } = await supabaseClient.auth.getSession();
+  } = await getSupabaseClient().auth.getSession();
   applySession(session?.user ?? null);
 
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
+  getSupabaseClient().auth.onAuthStateChange((_event, session) => {
     applySession(session?.user ?? null);
   });
 }
 
+function friendlyAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes('invalid login credentials')) {
+    return 'Invalid email or password. Reset the password in Supabase (Authentication → Users), or create the user again with Auto Confirm enabled.';
+  }
+  if (lower.includes('email not confirmed')) {
+    return 'This email is not confirmed yet. In Supabase → Authentication → Users, confirm the user or enable Auto Confirm when creating them.';
+  }
+  if (lower.includes('user not found')) {
+    return 'No account exists for this email. Create it in Supabase → Authentication → Users → Add user.';
+  }
+  return message;
+}
+
 export async function login(email: string, password: string): Promise<string | null> {
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) return error.message;
+  const normalizedEmail = email.trim().toLowerCase();
+  const { data, error } = await getSupabaseClient().auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
+  if (error) return friendlyAuthError(error.message);
   applySession(data.user);
   return null;
 }
 
 export async function logout(): Promise<void> {
-  await supabaseClient.auth.signOut();
+  await getSupabaseClient().auth.signOut();
   setRole('viewer', false);
 }

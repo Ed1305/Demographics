@@ -219,6 +219,13 @@ async function handleModalLogin(): Promise<void> {
   }
 
   closeLoginModal();
+
+  if (getCurrentRole() !== 'admin') {
+    alert(
+      'Signed in, but this account is not an admin yet.\n\n' +
+        'In Supabase SQL Editor, run supabase/seed/assign_admin_role.sql, then sign out and sign in again.',
+    );
+  }
 }
 
 async function handleLogout(): Promise<void> {
