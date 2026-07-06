@@ -1,5 +1,7 @@
 # Alpha Konnect · Demographics Portal
 
+**Live app:** [demographics-rust.vercel.app](https://demographics-rust.vercel.app/)
+
 Workforce demographics and retention dashboard. Upload monthly Excel reports, store them in Supabase, and explore charts, filters, and retention tables.
 
 ## Stack
@@ -87,6 +89,8 @@ The app builds to `dist/`. Set the same `VITE_*` environment variables on your h
 Find keys in Supabase Dashboard → **Project Settings** → **API**.
 
 ### Vercel
+
+**Production URL:** [https://demographics-rust.vercel.app/](https://demographics-rust.vercel.app/) (Vercel project: `demographics-`)
 
 1. **Import the repo** at [vercel.com/new](https://vercel.com/new) and connect your GitHub repository.
 2. Vercel should auto-detect **Vite**. Confirm:
