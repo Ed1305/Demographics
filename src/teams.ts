@@ -1,11 +1,19 @@
 export const BRANCH_TEAMS: Record<string, string[]> = {
-  Invnt: ['Team Prosper', 'Team Chad', 'Team Moses', 'Team Sonwabile', 'Invnt Incubation'],
+  Invnt: [
+    'Team Prosper',
+    'Team Chad',
+    'Team Moses',
+    'Team Sonwabile',
+    'Team Anda',
+    'Team Nombeko',
+    'Invnt Incubation',
+  ],
   Alpha: [
     'Team Popo',
     'Team Khaya',
     'Team Isipho',
     'Team Ayabonga',
-    'Team Nombeko',
+    'Team Yolanda',
     'Alpha Incubation',
   ],
 };
@@ -27,6 +35,8 @@ const TEAM_ALIASES: Record<string, string> = {
   khayalethu: 'Team Khaya',
   isipho: 'Team Isipho',
   nombeko: 'Team Nombeko',
+  anda: 'Team Anda',
+  yolanda: 'Team Yolanda',
   'invnt incubation': 'Invnt Incubation',
   'alpha incubation': 'Alpha Incubation',
 };
