@@ -7,12 +7,12 @@ import { getById } from '../utils/dom';
 import { displayMonthToKey, extractMonthFromFilename, keyToDisplayMonth, normalizeMonthKey, parseUserMonthInput } from '../utils/month';
 
 export function bindEvents(): void {
+  getById<HTMLButtonElement>('lockBtn').addEventListener('click', openLoginModal);
   getById<HTMLButtonElement>('uploadBtn').addEventListener('click', handleUpload);
   getById<HTMLSelectElement>('monthSelector').addEventListener('change', handleMonthChange);
   getById<HTMLButtonElement>('deleteMonthBtn').addEventListener('click', handleDeleteMonth);
   getById<HTMLButtonElement>('clearAllMonthsBtn').addEventListener('click', handleClearAllMonths);
   getById<HTMLButtonElement>('repairMonthsBtn').addEventListener('click', handleRepairMonths);
-  getById<HTMLButtonElement>('lockBtn').addEventListener('click', openLoginModal);
   getById<HTMLButtonElement>('modalClose').addEventListener('click', closeLoginModal);
   getById<HTMLDivElement>('loginModal').addEventListener('click', handleModalOverlayClick);
   getById<HTMLButtonElement>('modalLoginBtn').addEventListener('click', handleModalLogin);
@@ -204,7 +204,6 @@ async function handleClearAllMonths(): Promise<void> {
 
 function openLoginModal(): void {
   const modalOverlay = getById<HTMLDivElement>('loginModal');
-  modalOverlay.hidden = false;
   modalOverlay.classList.add('show');
   getById<HTMLInputElement>('modalEmail').value = '';
   getById<HTMLInputElement>('modalPassword').value = '';
@@ -215,7 +214,6 @@ function openLoginModal(): void {
 function closeLoginModal(): void {
   const modal = getById<HTMLDivElement>('loginModal');
   modal.classList.remove('show');
-  modal.hidden = true;
 }
 
 function handleModalOverlayClick(event: MouseEvent): void {

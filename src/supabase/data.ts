@@ -42,7 +42,7 @@ export async function fetchMonthKeys(): Promise<string[]> {
 
   if (error) {
     console.error('Error fetching months:', error);
-    return [];
+    throw formatSupabaseError('Could not load stored months', error);
   }
 
   return data.map((row) => row.month_key as string);

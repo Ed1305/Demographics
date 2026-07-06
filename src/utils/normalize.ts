@@ -1,24 +1,6 @@
 import { SALARY_BRACKETS } from '../config';
-import { BRANCH_TEAMS } from '../constants';
+import { canonicalizeTeam } from '../teams';
 import type { Employee } from '../types';
-
-const CANONICAL_TEAMS = Object.values(BRANCH_TEAMS).flat();
-
-const TEAM_ALIASES: Record<string, string> = {
-  ayabanga: 'Team Ayabonga',
-  ayabonga: 'Team Ayabonga',
-  prosper: 'Team Prosper',
-  chad: 'Team Chad',
-  moses: 'Team Moses',
-  sonwabile: 'Team Sonwabile',
-  popo: 'Team Popo',
-  khaya: 'Team Khaya',
-  khayalethu: 'Team Khaya',
-  isipho: 'Team Isipho',
-  nombeko: 'Team Nombeko',
-  'invnt incubation': 'Invnt Incubation',
-  'alpha incubation': 'Alpha Incubation',
-};
 
 const GENDER_VALUES = new Set(['male', 'female', 'm', 'f', 'other']);
 const HOUSING_VALUES = new Set([
@@ -97,29 +79,6 @@ function parseSalaryNumber(value: string): number | null {
   if (!cleaned || cleaned.toLowerCase() === 'none') return null;
   const num = Number.parseFloat(cleaned);
   return Number.isFinite(num) ? num : null;
-}
-
-export function canonicalizeTeam(raw: string): string {
-  const trimmed = String(raw ?? '').trim();
-  if (!trimmed) return '';
-
-  if (CANONICAL_TEAMS.includes(trimmed)) return trimmed;
-
-  const key = normalizeKey(trimmed);
-  if (TEAM_ALIASES[key]) return TEAM_ALIASES[key];
-
-  const withoutTeam = key.replace(/^team\s+/, '');
-  if (TEAM_ALIASES[withoutTeam]) return TEAM_ALIASES[withoutTeam];
-
-  const withTeam = `Team ${trimmed.replace(/^team\s+/i, '')}`;
-  if (CANONICAL_TEAMS.includes(withTeam)) return withTeam;
-
-  if (/^team\s+/i.test(trimmed)) {
-    const candidate = trimmed.replace(/\s+/g, ' ').replace(/^team\s+/i, 'Team ');
-    if (CANONICAL_TEAMS.includes(candidate)) return candidate;
-  }
-
-  return trimmed.replace(/\s+/g, ' ').replace(/^team\s+/i, 'Team ').trim();
 }
 
 export function normalizeSalaryBracket(raw: string, salaryExact = ''): string {

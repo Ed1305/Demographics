@@ -57,7 +57,20 @@ export async function refreshMonthSelector(selectedKey: string | null = null): P
   const select = getById<HTMLSelectElement>('monthSelector');
   getById<HTMLParagraphElement>('monthStatus').textContent = 'Checking database…';
 
-  const months = await fetchMonthKeys();
+  let months: string[] = [];
+  try {
+    months = await fetchMonthKeys();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Could not connect to the database.';
+    getById<HTMLParagraphElement>('monthStatus').textContent = message;
+    getById<HTMLHeadingElement>('emptyStateTitle').textContent = 'Could not load stored months';
+    getById<HTMLParagraphElement>('emptyStateDescription').textContent =
+      'Check your connection or Supabase configuration, then refresh the page.';
+    storedMonthCount = 0;
+    showEmptyState();
+    return;
+  }
+
   storedMonthCount = months.length;
 
   select.innerHTML = '<option value="">-- No month selected --</option>';

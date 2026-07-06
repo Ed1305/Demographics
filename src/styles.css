@@ -744,18 +744,14 @@ canvas {
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(4px);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.2s ease;
 }
 
 .modal-overlay.show {
-  visibility: visible;
-  opacity: 1;
+  display: flex;
 }
 
 .modal-card {
