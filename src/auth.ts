@@ -25,16 +25,19 @@ export function setRole(role: UserRole, authenticated = false): void {
   const uploadArea = getById<HTMLDivElement>('uploadArea');
   const deleteMonthBtn = getById<HTMLButtonElement>('deleteMonthBtn');
   const clearAllMonthsBtn = getById<HTMLButtonElement>('clearAllMonthsBtn');
+  const repairMonthsBtn = getById<HTMLButtonElement>('repairMonthsBtn');
   const logoutBtn = getById<HTMLButtonElement>('logoutBtn');
 
   if (role === 'admin') {
     uploadArea.style.display = 'flex';
     deleteMonthBtn.style.display = 'inline-flex';
     clearAllMonthsBtn.style.display = 'inline-flex';
+    repairMonthsBtn.style.display = 'inline-flex';
   } else {
     uploadArea.style.display = 'none';
     deleteMonthBtn.style.display = 'none';
     clearAllMonthsBtn.style.display = 'none';
+    repairMonthsBtn.style.display = 'none';
   }
 
   logoutBtn.style.display = authenticated ? 'flex' : 'none';

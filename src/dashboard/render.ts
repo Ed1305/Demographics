@@ -1,4 +1,4 @@
-import { BRANCH_TEAMS, getBranch } from '../constants';
+import { BRANCH_NAMES, BRANCH_TEAMS, getBranch, isKnownBranch } from '../constants';
 import { SALARY_BRACKETS, TENURE_DAY_LABELS } from '../config';
 import { setDashboardVisible } from '../app/layout';
 import {
@@ -38,14 +38,11 @@ export function updateTeamOptions(): void {
 
   if (branch === 'All') {
     teamsInBranch = unique(appState.currentData.map((d) => d.team)).sort();
-  } else {
+  } else if (isKnownBranch(branch)) {
     const teamList = BRANCH_TEAMS[branch] || [];
-    if (branch === 'Other') {
-      const allTeams = unique(appState.currentData.map((d) => d.team));
-      teamsInBranch = allTeams.filter((team) => getBranch(team) === 'Other');
-    } else {
-      teamsInBranch = teamList.filter((team) => appState.currentData.some((d) => d.team === team));
-    }
+    teamsInBranch = teamList.filter((team) => appState.currentData.some((d) => d.team === team));
+  } else {
+    teamsInBranch = [];
   }
 
   const teamSelect = getById<HTMLSelectElement>('teamFilter');
@@ -80,8 +77,7 @@ export function renderDashboard(data: Employee[]): void {
   setDashboardVisible(true);
   getById<HTMLDivElement>('filterBar').style.display = 'flex';
 
-  const branches = unique(data.map((d) => getBranch(d.team))).sort();
-  branches.unshift('All');
+  const branches = ['All', ...BRANCH_NAMES];
 
   const filterBar = getById<HTMLDivElement>('filterBar');
   filterBar.innerHTML = `
@@ -125,6 +121,12 @@ export function applyFilters(): void {
 
   const reportMonthKey = getReportMonthKey();
 
+  const branchCounts = { Invnt: 0, Alpha: 0 };
+  filtered.forEach((d) => {
+    const branch = getBranch(d.team);
+    if (branch === 'Invnt' || branch === 'Alpha') branchCounts[branch]++;
+  });
+
   const tenures = filtered
     .map((d) => computeTenureDays(d, reportMonthKey))
     .filter((t): t is number => t !== null && !Number.isNaN(t));
@@ -136,6 +138,8 @@ export function applyFilters(): void {
     <div class="card card--active"><div class="card-title"><i class="fas fa-user-check"></i> Active</div><div class="card-value">${activeCount}</div><div class="card-foot">${retentionRate}% retention</div></div>
     <div class="card card--inactive"><div class="card-title"><i class="fas fa-user-slash"></i> Inactive</div><div class="card-value">${inactiveCount}</div><div class="card-foot">${inactivePct}% of total</div></div>
     <div class="card card--total"><div class="card-title"><i class="fas fa-users"></i> Total</div><div class="card-value">${total}</div><div class="card-foot">${teamsCount} teams</div></div>
+    <div class="card card--branch card--invnt"><div class="card-title"><i class="fas fa-building"></i> Invnt</div><div class="card-value">${branchCounts.Invnt}</div><div class="card-foot">${total ? ((branchCounts.Invnt / total) * 100).toFixed(1) : '0'}% of filtered</div></div>
+    <div class="card card--branch card--alpha"><div class="card-title"><i class="fas fa-building"></i> Alpha</div><div class="card-value">${branchCounts.Alpha}</div><div class="card-foot">${total ? ((branchCounts.Alpha / total) * 100).toFixed(1) : '0'}% of filtered</div></div>
     <div class="card card--age"><div class="card-title"><i class="fas fa-calendar-week"></i> Avg Age</div><div class="card-value">${(filtered.reduce((acc, d) => acc + (+d.age || 0), 0) / total || 0).toFixed(1)}</div><div class="card-foot">years</div></div>
     <div class="card card--tenure"><div class="card-title"><i class="fas fa-hourglass-half"></i> Avg Tenure</div><div class="card-value">${avgTenure}</div><div class="card-foot">days</div></div>
   `;
@@ -198,11 +202,18 @@ export function applyFilters(): void {
     teamRetMap[d.team].total++;
     if (d.status === 'active') teamRetMap[d.team].active++;
   });
-  const teamRows = Object.entries(teamRetMap).sort((a, b) => a[0].localeCompare(b[0]));
+  const teamRows = Object.entries(teamRetMap)
+    .sort((a, b) => {
+      const branchCmp = getBranch(a[0]).localeCompare(getBranch(b[0]));
+      return branchCmp !== 0 ? branchCmp : a[0].localeCompare(b[0]);
+    });
   getById<HTMLTableSectionElement>('teamRetentionBody').innerHTML = teamRows
     .map(([team, counts]) => {
       const retention = counts.total ? ((counts.active / counts.total) * 100).toFixed(1) : '0';
-      return `<tr><td>${team}</td><td>${counts.total}</td><td>${counts.active}</td><td>${retention}%</td></tr>`;
+      const branch = getBranch(team);
+      const branchClass =
+        branch === 'Invnt' ? 'branch-invnt' : branch === 'Alpha' ? 'branch-alpha' : 'branch-other';
+      return `<tr><td>${team}</td><td><span class="branch-tag ${branchClass}">${branch}</span></td><td>${counts.total}</td><td>${counts.active}</td><td>${retention}%</td></tr>`;
     })
     .join('');
 
@@ -235,7 +246,7 @@ export function applyFilters(): void {
       const tenureDays = computeTenureDays(d, reportMonthKey);
       const tenureDisplay = tenureDays !== null && !Number.isNaN(tenureDays) ? `${tenureDays.toLocaleString()} days` : '—';
       return `<tr>
-        <td>${d.name}</td><td>${d.team}</td><td>${d.age}</td><td>${dobStr}</td><td>${d.gender}</td><td>${d.area}</td><td>${d.kids}</td><td>${d.source}</td>
+        <td>${d.name}</td><td><span class="branch-tag branch-${getBranch(d.team).toLowerCase()}">${getBranch(d.team)}</span> ${d.team}</td><td>${d.age}</td><td>${dobStr}</td><td>${d.gender}</td><td>${d.area}</td><td>${d.kids}</td><td>${d.source}</td>
         <td>${startStr}</td><td>${tenureDisplay}</td>
         <td><span class="status-badge ${d.status}">${d.status}</span></td>
       </tr>`;

@@ -2,7 +2,7 @@ import { getCurrentRole, login, logout } from '../auth';
 import { setUploadFileLabel, setUploadStatus } from '../app/layout';
 import { clearMonthView, loadMonth, refreshMonthSelector } from '../app/months';
 import { readExcelBuffer, parseExcelBuffer } from '../excel';
-import { deleteAllMonthData, deleteMonthData, storeMonthData } from '../supabase/data';
+import { deleteAllMonthData, deleteMonthData, repairAllStoredMonths, storeMonthData } from '../supabase/data';
 import { getById } from '../utils/dom';
 import { displayMonthToKey, extractMonthFromFilename, keyToDisplayMonth, normalizeMonthKey, parseUserMonthInput } from '../utils/month';
 
@@ -11,6 +11,7 @@ export function bindEvents(): void {
   getById<HTMLSelectElement>('monthSelector').addEventListener('change', handleMonthChange);
   getById<HTMLButtonElement>('deleteMonthBtn').addEventListener('click', handleDeleteMonth);
   getById<HTMLButtonElement>('clearAllMonthsBtn').addEventListener('click', handleClearAllMonths);
+  getById<HTMLButtonElement>('repairMonthsBtn').addEventListener('click', handleRepairMonths);
   getById<HTMLButtonElement>('lockBtn').addEventListener('click', openLoginModal);
   getById<HTMLButtonElement>('modalClose').addEventListener('click', closeLoginModal);
   getById<HTMLDivElement>('loginModal').addEventListener('click', handleModalOverlayClick);
@@ -145,6 +146,33 @@ async function handleDeleteMonth(): Promise<void> {
       const message = err instanceof Error ? err.message : 'Unknown error';
       alert(`Failed to delete month: ${message}`);
     }
+  }
+}
+
+async function handleRepairMonths(): Promise<void> {
+  if (getCurrentRole() !== 'admin') {
+    alert('Only admin can repair stored data.');
+    return;
+  }
+
+  if (
+    !confirm(
+      'Repair ALL stored months?\n\nThis normalizes team names (Invnt/Alpha branches), salary brackets, and fixes scrambled columns, then saves back to the database.',
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const { repaired, months } = await repairAllStoredMonths();
+    const select = getById<HTMLSelectElement>('monthSelector');
+    const current = select.value;
+    await refreshMonthSelector(current || null);
+    alert(repaired === 0 ? 'No stored months to repair.' : `Repaired ${repaired} month(s): ${months.map(keyToDisplayMonth).join(', ')}`);
+  } catch (err) {
+    console.error(err);
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    alert(`Failed to repair stored months: ${message}`);
   }
 }
 

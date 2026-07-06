@@ -1,4 +1,5 @@
 import { hydrateEmployeeDates, stripRuntimeFields } from '../utils/date';
+import { normalizeEmployees } from '../utils/normalize';
 import type { Employee, StoredEmployee } from '../types';
 import { getSupabaseClient } from './client';
 
@@ -60,7 +61,7 @@ export async function fetchMonthData(monthKey: string): Promise<Employee[] | nul
   }
 
   const rows = Array.isArray(data.data) ? (data.data as Employee[]) : [];
-  return hydrateEmployeeDates(rows);
+  return normalizeEmployees(hydrateEmployeeDates(rows));
 }
 
 export async function storeMonthData(monthKey: string, dataArray: Employee[]): Promise<void> {
@@ -72,7 +73,7 @@ export async function storeMonthData(monthKey: string, dataArray: Employee[]): P
     throw new Error('No employee records to store.');
   }
 
-  const clean = sanitizeEmployees(dataArray);
+  const clean = sanitizeEmployees(normalizeEmployees(dataArray));
   const { error } = await getSupabaseClient()
     .from('monthly_data')
     .upsert({ month_key: monthKey, data: clean }, { onConflict: 'month_key' });
@@ -96,4 +97,20 @@ export async function deleteAllMonthData(): Promise<number> {
 
   if (error) throw formatSupabaseError('Failed to clear all month data', error);
   return keys.length;
+}
+
+export async function repairAllStoredMonths(): Promise<{ repaired: number; months: string[] }> {
+  const keys = await fetchMonthKeys();
+  const repairedMonths: string[] = [];
+
+  for (const monthKey of keys) {
+    const data = await fetchMonthData(monthKey);
+    if (!data || data.length === 0) continue;
+
+    const normalized = normalizeEmployees(data);
+    await storeMonthData(monthKey, normalized);
+    repairedMonths.push(monthKey);
+  }
+
+  return { repaired: repairedMonths.length, months: repairedMonths };
 }

@@ -97,7 +97,12 @@ export function renderSalaryChart(labels: readonly string[], counts: number[]): 
     type: 'bar',
     data: {
       labels: [...labels],
-      datasets: [{ label: 'Active', data: counts, backgroundColor: '#f59e0b', borderRadius: 6 }],
+      datasets: [{
+        label: 'Active employees',
+        data: counts,
+        backgroundColor: ['#fbbf24', '#f59e0b', '#d97706', '#b45309'],
+        borderRadius: 8,
+      }],
     },
     options: barChartOptions,
   });

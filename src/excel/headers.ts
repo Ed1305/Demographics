@@ -49,9 +49,13 @@ const HEADER_FIELDS: Record<string, EmployeeField> = {
   source: 'source',
 };
 
+const SKIP_HEADERS = new Set(['status', 'resigned', 'terminated']);
+
 export function resolveHeaderField(headerText: string, salaryIndex: () => number): EmployeeField | null {
   const normalized = normalizeHeader(headerText);
   if (!normalized) return null;
+
+  if (SKIP_HEADERS.has(normalized)) return null;
 
   if (normalized.startsWith('activestart') || normalized.startsWith('inactivestart')) {
     return 'startDate';
@@ -67,7 +71,10 @@ export function resolveHeaderField(headerText: string, salaryIndex: () => number
   }
 
   if (normalized === 'salaries' || normalized === 'salary') {
-    return salaryIndex() === 1 ? 'salaryExact' : 'salaryBracket';
+    const index = salaryIndex();
+    if (index === 1) return 'salaryExact';
+    if (index === 2) return 'salaryBracket';
+    return 'salaryExact';
   }
 
   if (normalized.startsWith('salary')) {

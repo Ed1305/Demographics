@@ -17,6 +17,8 @@ import {
   validateStaffSheetHeaders,
 } from './headers';
 import { detectRibbonFromText, detectRowRibbon } from './ribbon-detect';
+import { normalizeEmployee } from '../utils/normalize';
+import { getBranch } from '../constants';
 
 const BLOCKED_NAME_HEADERS = new Set([
   'names',
@@ -47,10 +49,18 @@ function isLikelyHeaderRow(textValues: string[]): boolean {
   return columnMap.name !== undefined && columnMap.startDate !== undefined;
 }
 
+function branchIncubationDefault(team: string): string | null {
+  const branch = getBranch(team);
+  if (branch === 'Invnt') return 'Invnt Incubation';
+  if (branch === 'Alpha') return 'Alpha Incubation';
+  return null;
+}
+
 function rowToEmployee(
   rowValues: CellValue[],
   columnMap: ColumnMap,
   status: EmployeeStatus,
+  branchDefault: string,
 ): Employee | null {
   const name = String(getCellValue(rowValues, columnMap.name)).trim();
   if (!name || isLikelyHeaderName(name)) return null;
@@ -62,7 +72,7 @@ function rowToEmployee(
     startDate: getCellValue(rowValues, columnMap.startDate),
     dob: getCellValue(rowValues, columnMap.dob),
     name,
-    team: String(getCellValue(rowValues, columnMap.team)).trim(),
+    team: String(getCellValue(rowValues, columnMap.team)).trim() || branchDefault,
     age: parseInt(String(ageRaw), 10) || 0,
     gender: String(getCellValue(rowValues, columnMap.gender)).trim(),
     nationality: String(getCellValue(rowValues, columnMap.nationality)).trim(),
@@ -85,7 +95,7 @@ function rowToEmployee(
   if (employee.dobObj) {
     employee.dob = formatDateUtil(employee.dobObj);
   }
-  return employee;
+  return normalizeEmployee(employee);
 }
 
 function parseDataRows(
@@ -97,13 +107,15 @@ function parseDataRows(
   maxRow?: number,
 ): Employee[] {
   const employees: Employee[] = [];
+  let branchDefault = 'Invnt Incubation';
+
   const effectiveEndRow = findDataEndRow(sheet, startRow, columnCount, (rowValues) => {
       const textValues = rowValues.map((value) => {
         if (value instanceof Date) return formatDateUtil(value);
         return value == null ? '' : String(value).trim();
       });
       if (isLikelyHeaderRow(textValues)) return false;
-      return rowToEmployee(rowValues, columnMap, status) !== null;
+      return rowToEmployee(rowValues, columnMap, status, branchDefault) !== null;
   }, maxRow);
 
   for (let rowNumber = startRow; rowNumber <= effectiveEndRow; rowNumber += 1) {
@@ -116,8 +128,12 @@ function parseDataRows(
 
     if (isLikelyHeaderRow(textValues)) continue;
 
-    const employee = rowToEmployee(rowValues, columnMap, status);
-    if (employee) employees.push(employee);
+    const employee = rowToEmployee(rowValues, columnMap, status, branchDefault);
+    if (employee) {
+      const incubation = branchIncubationDefault(employee.team);
+      if (incubation) branchDefault = incubation;
+      employees.push(employee);
+    }
   }
 
   return employees;

@@ -464,8 +464,8 @@ body {
 /* ── Summary cards ── */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
 }
 
 .card {
@@ -482,9 +482,67 @@ body {
 .card--total { border-left-color: var(--brand); }
 .card--age { border-left-color: #7c3aed; }
 .card--tenure { border-left-color: #d97706; }
+.card--branch { border-left-width: 4px; }
+.card--invnt { border-left-color: #0ea5e9; }
+.card--alpha { border-left-color: #8b5cf6; }
+
+.branch-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.branch-invnt, .branch-tag.branch-invnt {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.branch-alpha, .branch-tag.branch-alpha {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.branch-other, .branch-tag.branch-other {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.secondary-btn {
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.secondary-btn:hover {
+  background: #eef2f7;
+  border-color: #cbd5e1;
+}
+
+.dashboard-container .header {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+}
 
 .card-title {
-  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.45px;
