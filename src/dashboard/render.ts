@@ -245,8 +245,12 @@ export function applyFilters(): void {
       const dobStr = d.dobObj ? formatDate(d.dobObj) : d.dob ? String(d.dob).trim() : '—';
       const tenureDays = computeTenureDays(d, reportMonthKey);
       const tenureDisplay = tenureDays !== null && !Number.isNaN(tenureDays) ? `${tenureDays.toLocaleString()} days` : '—';
+      const cell = (value: unknown) => {
+        const text = value == null ? '' : String(value).trim();
+        return text || '—';
+      };
       return `<tr>
-        <td>${d.name}</td><td><span class="branch-tag branch-${getBranch(d.team).toLowerCase()}">${getBranch(d.team)}</span> ${d.team}</td><td>${d.age}</td><td>${dobStr}</td><td>${d.gender}</td><td>${d.area}</td><td>${d.kids}</td><td>${d.source}</td>
+        <td>${d.name}</td><td><span class="branch-tag branch-${getBranch(d.team).toLowerCase()}">${getBranch(d.team)}</span> ${d.team}</td><td>${d.age}</td><td>${dobStr}</td><td>${cell(d.gender)}</td><td>${cell(d.nationality)}</td><td>${cell(d.area)}</td><td>${d.kids ?? '—'}</td><td>${cell(d.housing)}</td><td>${cell(d.experience)}</td><td>${cell(d.salaryExact)}</td><td>${cell(d.salaryBracket)}</td><td>${cell(d.source)}</td>
         <td>${startStr}</td><td>${tenureDisplay}</td>
         <td><span class="status-badge ${d.status}">${d.status}</span></td>
       </tr>`;

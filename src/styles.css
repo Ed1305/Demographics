@@ -663,6 +663,13 @@ canvas {
   border-bottom: 1px solid var(--border-soft);
 }
 
+.employee-table td {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .retention-table tbody tr:hover,
 .area-table tbody tr:hover {
   background: var(--surface-muted);
@@ -698,7 +705,7 @@ canvas {
 }
 
 .employee-table-wrapper {
-  max-height: 440px;
+  max-height: 480px;
   overflow: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-soft);
