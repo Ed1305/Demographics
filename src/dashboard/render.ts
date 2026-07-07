@@ -249,8 +249,15 @@ export function applyFilters(): void {
         const text = value == null ? '' : String(value).trim();
         return text || '—';
       };
+      const formatSalary = (value: unknown) => {
+        const text = value == null ? '' : String(value).trim();
+        if (!text || text.toLowerCase() === 'none') return '—';
+        const numeric = text.replace(/[r,\s]/gi, '');
+        if (/^\d+(\.\d+)?$/.test(numeric)) return `R${Number(numeric).toLocaleString()}`;
+        return text;
+      };
       return `<tr>
-        <td>${d.name}</td><td><span class="branch-tag branch-${getBranch(d.team).toLowerCase()}">${getBranch(d.team)}</span> ${d.team}</td><td>${d.age}</td><td>${dobStr}</td><td>${cell(d.gender)}</td><td>${cell(d.nationality)}</td><td>${cell(d.area)}</td><td>${d.kids ?? '—'}</td><td>${cell(d.housing)}</td><td>${cell(d.experience)}</td><td>${cell(d.salaryExact)}</td><td>${cell(d.salaryBracket)}</td><td>${cell(d.source)}</td>
+        <td>${d.name}</td><td><span class="branch-tag branch-${getBranch(d.team).toLowerCase()}">${getBranch(d.team)}</span> ${d.team}</td><td>${d.age}</td><td>${dobStr}</td><td>${cell(d.gender)}</td><td>${cell(d.nationality)}</td><td>${cell(d.area)}</td><td>${d.kids ?? '—'}</td><td>${cell(d.housing)}</td><td>${cell(d.experience)}</td><td>${formatSalary(d.salaryExact)}</td><td>${cell(d.salaryBracket)}</td><td>${cell(d.source)}</td>
         <td>${startStr}</td><td>${tenureDisplay}</td>
         <td><span class="status-badge ${d.status}">${d.status}</span></td>
       </tr>`;

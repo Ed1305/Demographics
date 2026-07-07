@@ -70,13 +70,18 @@ function looksLikeHousing(value: string): boolean {
 
 function looksLikeBracket(value: string): boolean {
   const key = normalizeKey(value).replace(/\s/g, '');
-  if (!key) return false;
-  return SALARY_BRACKETS.some((b) => normalizeKey(b).replace(/\s/g, '') === key) || /^r?\d/.test(key);
+  if (!key || key === '0' || key === 'none') return false;
+  if (SALARY_BRACKETS.some((b) => normalizeKey(b).replace(/\s/g, '') === key)) return true;
+  // Bracket ranges contain a dash between amounts (e.g. R3001-R6000, 0-R3000).
+  return /[-–]/.test(value) && /\d/.test(value);
 }
 
 function parseSalaryNumber(value: string): number | null {
-  const cleaned = value.replace(/[r,\s]/gi, '').trim();
-  if (!cleaned || cleaned.toLowerCase() === 'none') return null;
+  const trimmed = String(value ?? '').trim();
+  if (!trimmed || trimmed.toLowerCase() === 'none') return null;
+  if (/[-–]/.test(trimmed)) return null;
+  const cleaned = trimmed.replace(/[r,\s]/gi, '').trim();
+  if (!cleaned) return null;
   const num = Number.parseFloat(cleaned);
   return Number.isFinite(num) ? num : null;
 }
@@ -187,15 +192,15 @@ function repairSalaryFields(employee: Employee): void {
   const exact = String(employee.salaryExact ?? '').trim();
   const bracket = String(employee.salaryBracket ?? '').trim();
 
-  if (looksLikeBracket(exact) && parseSalaryNumber(bracket) !== null) {
-    employee.salaryExact = normalizeSalaryExact(bracket, exact);
-    employee.salaryBracket = normalizeSalaryBracket(exact, employee.salaryExact);
+  if (looksLikeBracket(exact) && looksLikeBracket(bracket)) {
+    employee.salaryBracket = normalizeSalaryBracket(bracket, exact);
+    employee.salaryExact = normalizeSalaryExact(exact, employee.salaryBracket);
     return;
   }
 
-  if (looksLikeBracket(exact) && !looksLikeBracket(bracket)) {
-    employee.salaryBracket = normalizeSalaryBracket(exact, bracket);
-    employee.salaryExact = normalizeSalaryExact(bracket, employee.salaryBracket);
+  if (looksLikeBracket(exact) && !looksLikeBracket(bracket) && parseSalaryNumber(bracket) !== null) {
+    employee.salaryExact = normalizeSalaryExact(bracket, exact);
+    employee.salaryBracket = normalizeSalaryBracket(exact, employee.salaryExact);
     return;
   }
 

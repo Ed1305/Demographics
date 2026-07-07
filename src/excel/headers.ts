@@ -90,10 +90,16 @@ export function buildColumnMap(headerTexts: string[]): ColumnMap {
   let salaryCount = 0;
 
   headerTexts.forEach((header, index) => {
-    const field = resolveHeaderField(header, () => {
+    const normalized = normalizeHeader(header);
+    let field: EmployeeField | null;
+
+    if (normalized === 'salaries' || normalized === 'salary') {
       salaryCount += 1;
-      return salaryCount;
-    });
+      field = salaryCount === 1 ? 'salaryExact' : salaryCount === 2 ? 'salaryBracket' : null;
+    } else {
+      field = resolveHeaderField(header, () => 0);
+    }
+
     if (field && map[field] === undefined) {
       map[field] = index;
     }
