@@ -1,18 +1,7 @@
-import type { User } from '@supabase/supabase-js';
-import { getSupabaseClient } from './supabase/client';
 import { getById } from './utils/dom';
 import type { UserRole } from './types';
 
 let currentRole: UserRole = 'viewer';
-
-function getRoleFromUser(user: User): UserRole {
-  const role = user.app_metadata?.role ?? user.user_metadata?.role;
-  return role === 'admin' ? 'admin' : 'viewer';
-}
-
-function applySession(user: User | null): void {
-  setRole(user ? getRoleFromUser(user) : 'viewer', Boolean(user));
-}
 
 export function getCurrentRole(): UserRole {
   return currentRole;
@@ -44,42 +33,30 @@ export function setRole(role: UserRole, authenticated = false): void {
 }
 
 export async function initAuth(): Promise<void> {
-  const {
-    data: { session },
-  } = await getSupabaseClient().auth.getSession();
-  applySession(session?.user ?? null);
-
-  getSupabaseClient().auth.onAuthStateChange((_event, session) => {
-    applySession(session?.user ?? null);
-  });
-}
-
-function friendlyAuthError(message: string): string {
-  const lower = message.toLowerCase();
-  if (lower.includes('invalid login credentials')) {
-    return 'Invalid email or password. Reset the password in Supabase (Authentication → Users), or create the user again with Auto Confirm enabled.';
+  try {
+    const res = await fetch('/api/auth/session');
+    const session = res.ok ? await res.json() : null;
+    setRole(session ? 'admin' : 'viewer', Boolean(session));
+  } catch {
+    setRole('viewer', false);
   }
-  if (lower.includes('email not confirmed')) {
-    return 'This email is not confirmed yet. In Supabase → Authentication → Users, confirm the user or enable Auto Confirm when creating them.';
-  }
-  if (lower.includes('user not found')) {
-    return 'No account exists for this email. Create it in Supabase → Authentication → Users → Add user.';
-  }
-  return message;
 }
 
 export async function login(email: string, password: string): Promise<string | null> {
-  const normalizedEmail = email.trim().toLowerCase();
-  const { data, error } = await getSupabaseClient().auth.signInWithPassword({
-    email: normalizedEmail,
-    password,
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
   });
-  if (error) return friendlyAuthError(error.message);
-  applySession(data.user);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    return body.error ?? 'Sign-in failed.';
+  }
+  setRole('admin', true);
   return null;
 }
 
 export async function logout(): Promise<void> {
-  await getSupabaseClient().auth.signOut();
+  await fetch('/api/auth/logout', { method: 'POST' });
   setRole('viewer', false);
 }

@@ -4,4 +4,5 @@ dist
 .env.local
 *.local
 .env.watch
+.env.migrate
 logs

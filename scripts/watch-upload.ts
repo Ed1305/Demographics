@@ -4,21 +4,19 @@
  * Watches a local folder for new .xlsx / .xlsm files, parses them using the
  * app's real parsing logic (src/excel/workbook-parser.ts), derives the
  * month_key using the app's real month utilities (src/utils/month.ts), and
- * upserts into Supabase `monthly_data` using the SERVICE ROLE key (bypasses
- * RLS — this script is trusted and never runs in a browser).
+ * upserts into Neon `monthly_data`.
  *
  * Run with:
  *   npx tsx scripts/watch-upload.ts
  *
  * Required env vars (put these in a local .env.watch file, NEVER commit it):
- *   SUPABASE_URL=https://your-project.supabase.co
- *   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key   <-- SECRET, server-only
+ *   DATABASE_URL=postgres://...   <-- SECRET, server-only Neon pooler URL
  *   WATCH_FOLDER=/absolute/path/to/folder/to/watch     (optional, defaults below)
  */
 
 import dotenv from 'dotenv';
 import chokidar from 'chokidar';
-import { createClient } from '@supabase/supabase-js';
+import { neon } from '@neondatabase/serverless';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as fsp from 'fs/promises';
@@ -62,7 +60,8 @@ import {
   keyToDisplayMonth,
   parseUserMonthInput,
 } from '../src/utils/month';
-import type { Employee, StoredEmployee } from '../src/types';
+import type { Employee } from '../src/types';
+import { sanitizeEmployees } from '../api/_lib/sanitize';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -72,73 +71,29 @@ const WATCH_FOLDER = process.env.WATCH_FOLDER ?? path.join(process.cwd(), 'incom
 const PROCESSED_FOLDER = path.join(WATCH_FOLDER, 'processed');
 const FAILED_FOLDER = path.join(WATCH_FOLDER, 'failed');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+if (!process.env.DATABASE_URL) {
   console.error(
-    '[fatal] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.\n' +
+    '[fatal] Missing DATABASE_URL.\n' +
       'Create a .env.watch file (see scripts/.env.watch.example) and load it,\n' +
-      'or export both as environment variables before running this script.',
+      'or export it as an environment variable before running this script.',
   );
   process.exit(1);
 }
 
-// Service-role client: bypasses RLS entirely. Server-side only. Never expose
-// this key to a browser bundle or commit it to git.
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
+const sql = neon(process.env.DATABASE_URL);
 
-// ---------------------------------------------------------------------------
-// Sanitization (mirrors src/supabase/data.ts sanitizeEmployee/sanitizeEmployees,
-// since that file's storeMonthData() is wired to the anon client and we don't
-// want to touch app-facing code for this local automation script).
-// ---------------------------------------------------------------------------
-
-function sanitizeEmployee(employee: Employee): StoredEmployee {
-  const { startDateObj: _startDateObj, dobObj: _dobObj, ...rest } = employee;
-  return {
-    ...rest,
-    name: String(rest.name ?? '').trim(),
-    team: String(rest.team ?? '').trim(),
-    gender: String(rest.gender ?? '').trim(),
-    nationality: String(rest.nationality ?? '').trim(),
-    qualification: String(rest.qualification ?? '').trim(),
-    area: String(rest.area ?? '').trim(),
-    housing: String(rest.housing ?? '').trim(),
-    experience: String(rest.experience ?? '').trim(),
-    salaryExact: String(rest.salaryExact ?? '').trim(),
-    salaryBracket: String(rest.salaryBracket ?? '').trim(),
-    source: String(rest.source ?? '').trim(),
-    startDate: rest.startDate ?? '',
-    dob: rest.dob ?? '',
-    kids: rest.kids ?? 0,
-    age: Number.isFinite(rest.age) ? rest.age : 0,
-    status: rest.status === 'inactive' ? 'inactive' : 'active',
-  };
-}
-
-function sanitizeEmployees(employees: Employee[]): StoredEmployee[] {
-  return employees.map(sanitizeEmployee);
-}
-
-async function storeMonthDataServiceRole(monthKey: string, dataArray: Employee[]): Promise<void> {
-  if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) {
+async function storeMonthDataDirect(monthKey: string, dataArray: Employee[]): Promise<void> {
+  if (!/^\d{4}-\d{2}$/.test(monthKey)) {
     throw new Error(`Invalid reporting month key "${monthKey}". Expected format like 2026-06.`);
   }
-  if (dataArray.length === 0) {
-    throw new Error('No employee records to store.');
-  }
+  if (dataArray.length === 0) throw new Error('No employee records to store.');
 
   const clean = sanitizeEmployees(dataArray);
-  const { error } = await supabase
-    .from('monthly_data')
-    .upsert({ month_key: monthKey, data: clean }, { onConflict: 'month_key' });
-
-  if (error) {
-    throw new Error(`Supabase upsert failed: ${error.message}`);
-  }
+  await sql`
+    insert into monthly_data (month_key, data)
+    values (${monthKey}, ${JSON.stringify(clean)}::jsonb)
+    on conflict (month_key) do update set data = excluded.data
+  `;
 }
 
 // ---------------------------------------------------------------------------
@@ -228,7 +183,7 @@ async function processFile(filePath: string): Promise<void> {
     console.log(`[parsed] ${employees.length} employees (${activeCount} active, ${inactiveCount} inactive)`);
 
     console.log(`[uploading] Writing to monthly_data for ${monthKey} (overwrite if exists)...`);
-    await storeMonthDataServiceRole(monthKey, employees);
+    await storeMonthDataDirect(monthKey, employees);
 
     console.log(`[success] Saved ${employees.length} employees for ${label}.`);
     await moveFile(filePath, PROCESSED_FOLDER);
@@ -257,7 +212,7 @@ async function main() {
   console.log(`Watching:   ${WATCH_FOLDER}`);
   console.log(`Processed:  ${PROCESSED_FOLDER}`);
   console.log(`Failed:     ${FAILED_FOLDER}`);
-  console.log(`Supabase:   ${SUPABASE_URL}`);
+  console.log('Database:   Neon Postgres');
   console.log('Drop a .xlsx file (e.g. "June 2026.xlsx") into the watch folder to upload it automatically.');
   console.log('Press Ctrl+C to stop.\n');
 

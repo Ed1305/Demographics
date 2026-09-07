@@ -1,7 +1,7 @@
 import { clearCharts } from '../charts/manager';
 import { setDashboardVisible } from '../app/layout';
 import { clearDashboardView, renderDashboard } from '../dashboard/render';
-import { fetchMonthData, fetchMonthKeys } from '../supabase/data';
+import { fetchMonthData, fetchMonthKeys } from '../api/data';
 import { setCurrentData, setReportMonth } from '../state';
 import { getById } from '../utils/dom';
 import { keyToDisplayMonth, normalizeMonthKey } from '../utils/month';
@@ -65,7 +65,7 @@ export async function refreshMonthSelector(selectedKey: string | null = null): P
     getById<HTMLParagraphElement>('monthStatus').textContent = message;
     getById<HTMLHeadingElement>('emptyStateTitle').textContent = 'Could not load stored months';
     getById<HTMLParagraphElement>('emptyStateDescription').textContent =
-      'Check your connection or Supabase configuration, then refresh the page.';
+      'Check your connection, then refresh the page.';
     storedMonthCount = 0;
     showEmptyState();
     return;
