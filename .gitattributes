@@ -1,0 +1,10 @@
+# Normalise line endings so diffs stay reviewable across Windows and CI.
+# Without this, an editor rewriting CRLF->LF makes every file look fully changed.
+* text=auto eol=lf
+
+# Windows batch files must keep CRLF or cmd.exe misparses them.
+*.bat text eol=crlf
+
+*.xlsx binary
+*.xlsm binary
+*.docx binary

@@ -2,14 +2,15 @@
 
 **Live app:** [demographics-rust.vercel.app](https://demographics-rust.vercel.app/)
 
-Workforce demographics and retention dashboard. Upload monthly Excel reports, store them in Supabase, and explore charts, filters, and retention tables.
+Workforce demographics and retention dashboard. Upload monthly Excel reports, store them in Neon Postgres, and explore charts, filters, and retention tables.
 
 ## Stack
 
 - TypeScript + Vite
 - Chart.js for visualizations
 - ExcelJS for Excel parsing (green/red ribbon detection)
-- Supabase for storage and authentication
+- Neon Postgres for storage
+- Vercel serverless functions (`/api`) for data access and session auth
 
 ## Quick start
 
@@ -21,35 +22,38 @@ Workforce demographics and retention dashboard. Upload monthly Excel reports, st
 
 2. **Configure environment**
 
-   Copy the example env file and add your Supabase project values:
+   Copy the example env file and add your server-only values:
 
    ```bash
    cp .env.example .env
    ```
 
-   Required variables:
+   Required variables (never prefix these with `VITE_`):
 
    | Variable | Description |
    |----------|-------------|
-   | `VITE_SUPABASE_URL` | Supabase project URL |
-   | `VITE_SUPABASE_ANON_KEY` | Supabase anon/public key |
+   | `DATABASE_URL` | Neon pooler connection string |
+   | `ADMIN_EMAIL` | Admin sign-in email |
+   | `ADMIN_PASSWORD_HASH` | Output of `hashPassword()` in `api/_lib/auth.ts` |
+   | `SESSION_SECRET` | Random secret for signing session cookies (`openssl rand -base64 32`) |
 
-3. **Set up Supabase**
+   Generate the password hash once:
 
-   Run the SQL migration in the Supabase SQL editor:
+   ```bash
+   npx tsx -e "import {hashPassword} from './api/_lib/auth.ts'; console.log(hashPassword('your-new-password'))"
+   ```
 
-   - `supabase/migrations/001_monthly_data_rls.sql` — creates `monthly_data`, enables RLS, and adds policies
+3. **Set up Neon**
 
-   Create an admin user:
-
-   1. Supabase Dashboard → **Authentication** → **Users** → **Add user**
-   2. Run `supabase/seed/assign_admin_role.sql` with your admin email to grant the `admin` role
+   Run `neon/001_schema.sql` in the Neon SQL Editor (Neon console → your project → SQL Editor).
 
 4. **Run locally**
 
    ```bash
-   npm run dev
+   npx vercel dev
    ```
+
+   This serves the Vite app and `/api` together so the dashboard can load stored months. `npm run dev` starts Vite only and will not serve the API.
 
 5. **Build for production**
 
@@ -78,15 +82,13 @@ Filenames like `January 2026.xlsx` are auto-detected for the month key. Use `.xl
 | Role | Access |
 |------|--------|
 | **Viewer** (default) | Browse dashboard and charts without signing in |
-| **Admin** | Upload Excel files and delete months (requires Supabase login with `app_metadata.role = admin`) |
+| **Admin** | Upload Excel files, delete months, and repair stored data (requires sign-in; a successful login *is* the admin) |
 
-Hardcoded client-side passwords were removed. Admin access is enforced by Supabase Auth and Row Level Security.
+Admin access is an HttpOnly session cookie issued by `/api/auth/login`. The dashboard stays readable without signing in.
 
 ## Deploy
 
-The app builds to `dist/`. Set the same `VITE_*` environment variables on your host **before** building (Vite embeds them at build time).
-
-Find keys in Supabase Dashboard → **Project Settings** → **API**.
+The app builds to `dist/` and runs `/api` as Vercel serverless functions. The four server-only env vars are read at runtime.
 
 ### Vercel
 
@@ -101,46 +103,29 @@ Find keys in Supabase Dashboard → **Project Settings** → **API**.
 
    | Name | Value |
    |------|--------|
-   | `VITE_SUPABASE_URL` | `https://your-project.supabase.co` |
-   | `VITE_SUPABASE_ANON_KEY` | your Supabase anon (public) key |
+   | `DATABASE_URL` | Neon pooler connection string |
+   | `ADMIN_EMAIL` | Admin sign-in email |
+   | `ADMIN_PASSWORD_HASH` | `scrypt` hash from `hashPassword()` |
+   | `SESSION_SECRET` | Random secret (`openssl rand -base64 32`) |
 
    Apply to **Production**, **Preview**, and **Development** so all deploys work.
 4. Click **Deploy**.
-5. If you add or change env vars later: **Project → Settings → Environment Variables**, then **Deployments → … → Redeploy** (a new build is required).
 
-`vercel.json` in this repo sets the Vite build output and SPA routing.
-
-### Netlify
-
-`netlify.toml` is included. Connect the repo and configure:
-
-1. **Site configuration → Environment variables** — add both (required before build):
-   - `VITE_SUPABASE_URL` — e.g. `https://your-project.supabase.co`
-   - `VITE_SUPABASE_ANON_KEY` — your Supabase anon/public key
-2. **Build command:** `npm run build`
-3. **Publish directory:** `dist`
-4. **Redeploy** after adding env vars (Vite embeds them at build time; changing vars requires a new deploy)
-
-Find keys in Supabase Dashboard → **Project Settings** → **API**.
-
-### Other static hosts
-
-Any static host (Vercel, Cloudflare Pages, GitHub Pages) works the same way: install, set env vars, run `npm run build`, publish `dist/`.
+`vercel.json` in this repo sets the Vite build output and SPA routing that leaves `/api` alone.
 
 ## Project structure
 
 ```text
 src/
+  api/          Browser fetch wrappers for /api
   app/          Event handlers and month loading
   charts/       Chart.js rendering
   dashboard/    Filters, summary cards, tables
-  supabase/     Client and data access
   utils/        Dates, DOM helpers, month keys
-supabase/
-  migrations/   Database schema + RLS
-  seed/         Admin role assignment SQL
+api/
+  _lib/         Neon client, session auth, sanitization
+  months/       Public reads, admin writes
+  auth/         Login, logout, session
+neon/
+  001_schema.sql
 ```
-
-## Legacy file
-
-`index.legacy.html` is the original single-file version, kept for reference only. Use the TypeScript app for all new work.
