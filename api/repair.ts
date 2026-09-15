@@ -13,7 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   if (!requireAdmin(req, res)) return;
 
-  const rows = await sql`select month_key, data from monthly_data order by month_key`;
+  const rows = await sql`select month_key, data from public.monthly_data order by month_key`;
   const repairedMonths: string[] = [];
 
   for (const row of rows) {
@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const clean = sanitizeEmployees(normalizeEmployees(hydrateEmployeeDates(employees)));
     await sql`
-      update monthly_data
+      update public.monthly_data
       set data = ${JSON.stringify(clean)}::jsonb
       where month_key = ${String(row.month_key)}
     `;

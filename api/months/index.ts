@@ -6,8 +6,16 @@ import { sanitizeEmployees } from '../_lib/sanitize.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
-    const rows = await sql`select month_key from monthly_data order by month_key desc`;
-    return res.status(200).json(rows.map((r) => r.month_key));
+    try {
+      const rows = await sql`select month_key from public.monthly_data order by month_key desc`;
+      return res.status(200).json(rows.map((r) => r.month_key));
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        error:
+          'Could not load stored months. Confirm DATABASE_URL points at the Neon database where public.monthly_data exists, then redeploy.',
+      });
+    }
   }
 
   if (req.method === 'POST') {
@@ -23,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const clean = sanitizeEmployees(normalizeEmployees(data));
     await sql`
-      insert into monthly_data (month_key, data)
+      insert into public.monthly_data (month_key, data)
       values (${monthKey}, ${JSON.stringify(clean)}::jsonb)
       on conflict (month_key) do update set data = excluded.data
     `;
@@ -32,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'DELETE') {
     if (!requireAdmin(req, res)) return;
-    const rows = await sql`delete from monthly_data returning month_key`;
+    const rows = await sql`delete from public.monthly_data returning month_key`;
     return res.status(200).json({ cleared: rows.length });
   }
 

@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'GET') {
-    const rows = await sql`select data from monthly_data where month_key = ${key} limit 1`;
+    const rows = await sql`select data from public.monthly_data where month_key = ${key} limit 1`;
     if (!rows.length) {
       return res.status(404).json({ error: 'Month not found.' });
     }
@@ -19,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'DELETE') {
     if (!requireAdmin(req, res)) return;
-    await sql`delete from monthly_data where month_key = ${key}`;
+    await sql`delete from public.monthly_data where month_key = ${key}`;
     return res.status(200).json({ deleted: true });
   }
 
