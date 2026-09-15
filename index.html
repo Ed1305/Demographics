@@ -9,137 +9,182 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="dashboard-container" id="dashboardContainer">
-        <div class="dashboard">
-            <header class="header">
-                <div class="logo-area">
-                    <div class="logo-icon"><i class="fas fa-chart-pie"></i></div>
-                    <div>
-                        <div class="logo-text">Alpha<span>Konnect</span></div>
-                        <p class="logo-subtitle">Workforce Demographics & Retention</p>
-                    </div>
+    <div class="app-shell" id="dashboardContainer">
+
+        <!-- ─────────────── Sidebar ─────────────── -->
+        <aside class="sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <div class="logo-icon"><i class="fas fa-chart-pie"></i></div>
+                <div class="logo-text">AlphaKonnect</div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebarNav">
+                <a class="nav-item is-active" href="#overview" data-nav="overview"><i class="fas fa-gauge-high"></i><span>Overview</span></a>
+                <a class="nav-item" href="#analytics" data-nav="analytics"><i class="fas fa-chart-column"></i><span>Analytics</span></a>
+                <a class="nav-item" href="#retention" data-nav="retention"><i class="fas fa-users"></i><span>Retention</span></a>
+                <a class="nav-item" href="#employees" data-nav="employees"><i class="fas fa-address-book"></i><span>Employees</span></a>
+
+                <div class="nav-divider"></div>
+
+                <a class="nav-item" href="#data-controls" data-nav="data-controls"><i class="fas fa-database"></i><span>Reporting data</span></a>
+            </nav>
+
+            <div class="account-card">
+                <span class="role-badge" id="roleDisplay">Viewer</span>
+                <button class="lock-btn" id="lockBtn" type="button"><i class="fas fa-lock"></i> Admin</button>
+                <button class="logout-btn" id="logoutBtn" type="button" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </aside>
+
+        <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+        <!-- ─────────────── Workspace ─────────────── -->
+        <div class="workspace">
+            <header class="topbar">
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation"><i class="fas fa-bars"></i></button>
+                <div class="topbar-title">
+                    <h1>Demographics Portal</h1>
+                    <p>Workforce demographics &amp; retention</p>
                 </div>
-                <div class="header-actions">
-                    <span class="role-badge" id="roleDisplay">Viewer</span>
-                    <button class="lock-btn" id="lockBtn" type="button"><i class="fas fa-lock"></i> Admin</button>
-                    <button class="logout-btn" id="logoutBtn" type="button" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <div class="topbar-actions">
+                    <div class="month-pill">
+                        <label class="sr-only" for="monthSelector">Reporting month</label>
+                        <select id="monthSelector">
+                            <option value="">-- No month selected --</option>
+                        </select>
+                    </div>
                 </div>
             </header>
 
-            <section class="controls-panel">
-                <div class="controls-row">
-                    <div class="control-group">
-                        <label for="monthSelector"><i class="fas fa-calendar-alt"></i> Reporting month</label>
-                        <div class="control-inputs">
-                            <select id="monthSelector">
-                                <option value="">-- No month selected --</option>
-                            </select>
-                            <button class="danger-btn" id="deleteMonthBtn" type="button" style="display:none;" title="Delete the selected month from the database"><i class="fas fa-trash-alt"></i> Delete selected</button>
-                            <button class="danger-btn danger-btn--outline" id="clearAllMonthsBtn" type="button" style="display:none;" title="Remove every stored month from the database"><i class="fas fa-broom"></i> Clear all stored</button>
-                            <button class="secondary-btn" id="repairMonthsBtn" type="button" style="display:none;" title="Normalize teams, salary brackets, and column data for all stored months"><i class="fas fa-wrench"></i> Repair stored data</button>
-                        </div>
+            <div class="workspace-body">
+                <div class="page-head">
+                    <div>
+                        <h2>Dashboard</h2>
+                        <p class="page-sub">Key metrics for the selected reporting month</p>
                     </div>
-                    <p class="month-status" id="monthStatus"></p>
+                    <span class="page-date" id="pageDate"></span>
                 </div>
 
-                <div class="upload-area" id="uploadArea" style="display: none;">
-                    <div class="upload-icon"><i class="fas fa-file-excel"></i></div>
-                    <div class="upload-body">
-                        <div class="upload-title">Upload monthly report</div>
-                        <p class="upload-hint" id="uploadHint">Upload .xlsx with either separate <strong>Active staff</strong> / <strong>Inactive staff</strong> sheets, or one sheet with green (Active) and red (Inactive) header ribbons. Headers are matched by name.</p>
-                        <div class="upload-actions">
-                            <label class="file-picker" for="fileInput">
-                                <i class="fas fa-folder-open"></i> Choose file
-                            </label>
-                            <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" hidden>
-                            <span class="selected-file" id="selectedFileName">No file chosen</span>
-                            <button class="primary-btn" id="uploadBtn" type="button"><i class="fas fa-cloud-upload-alt"></i> Upload & Store</button>
+                <!-- ── Reporting data ── -->
+                <section class="section-block" id="data-controls">
+                    <div class="controls-panel">
+                        <div class="controls-row">
+                            <div class="control-group">
+                                <label>Reporting data</label>
+                                <div class="control-inputs">
+                                    <button class="danger-btn" id="deleteMonthBtn" type="button" style="display:none;" title="Delete the selected month from the database"><i class="fas fa-trash-alt"></i> Delete selected</button>
+                                    <button class="danger-btn danger-btn--outline" id="clearAllMonthsBtn" type="button" style="display:none;" title="Remove every stored month from the database"><i class="fas fa-broom"></i> Clear all stored</button>
+                                    <button class="secondary-btn" id="repairMonthsBtn" type="button" style="display:none;" title="Normalize teams, salary brackets, and column data for all stored months"><i class="fas fa-wrench"></i> Repair stored data</button>
+                                </div>
+                            </div>
+                            <p class="month-status" id="monthStatus"></p>
                         </div>
-                        <span class="upload-status" id="uploadStatus" data-state="idle"></span>
+
+                        <div class="upload-area" id="uploadArea" style="display: none;">
+                            <div class="upload-icon"><i class="fas fa-file-excel"></i></div>
+                            <div class="upload-body">
+                                <div class="upload-title">Upload monthly report</div>
+                                <p class="upload-hint" id="uploadHint">Upload .xlsx with either separate <strong>Active staff</strong> / <strong>Inactive staff</strong> sheets, or one sheet with green (Active) and red (Inactive) header ribbons. Headers are matched by name.</p>
+                                <div class="upload-actions">
+                                    <label class="file-picker" for="fileInput">
+                                        <i class="fas fa-folder-open"></i> Choose file
+                                    </label>
+                                    <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" hidden>
+                                    <span class="selected-file" id="selectedFileName">No file chosen</span>
+                                    <button class="primary-btn" id="uploadBtn" type="button"><i class="fas fa-cloud-upload-alt"></i> Upload &amp; Store</button>
+                                </div>
+                                <span class="upload-status" id="uploadStatus" data-state="idle"></span>
+                            </div>
+                        </div>
                     </div>
+                </section>
+
+                <!-- ── Empty state ── -->
+                <section class="empty-state-panel" id="emptyStatePanel">
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-chart-bar"></i></div>
+                        <h2 id="emptyStateTitle">No monthly data yet</h2>
+                        <p id="emptyStateDescription">The database has no stored reports yet.</p>
+                        <ul class="empty-steps">
+                            <li><i class="fas fa-lock"></i> Admin → sign in</li>
+                            <li><i class="fas fa-file-excel"></i> Choose your monthly Excel file</li>
+                            <li><i class="fas fa-cloud-upload-alt"></i> Upload &amp; Store</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <div id="dashboardContent" hidden>
+                    <div class="filter-bar" id="filterBar"></div>
+
+                    <section class="section-block" id="overview">
+                        <div class="section-heading">
+                            <h2>Overview</h2>
+                            <p>Key metrics for the selected month and filters</p>
+                        </div>
+                        <div class="cards" id="summaryCards"></div>
+                    </section>
+
+                    <section class="section-block" id="analytics">
+                        <div class="section-heading">
+                            <h2>Analytics</h2>
+                            <p>Composition, sources, and tenure breakdown</p>
+                        </div>
+                        <div class="split-grid">
+                            <div class="chart-card"><div class="chart-header"><h3>Source Effectiveness</h3></div><div class="chart-container"><canvas id="sourceChart"></canvas></div></div>
+                            <div class="chart-card"><div class="chart-header"><h3>Gender Distribution</h3></div><div class="chart-container"><canvas id="genderChart"></canvas></div></div>
+                        </div>
+                        <div class="split-grid">
+                            <div class="chart-card"><div class="chart-header"><h3>Team Composition</h3></div><div class="chart-container"><canvas id="teamChart"></canvas></div></div>
+                            <div class="chart-card"><div class="chart-header"><h3>Salary Brackets (Active)</h3></div><div class="chart-container"><canvas id="salaryChart"></canvas></div></div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-header"><h3>Tenure Distribution (days)</h3></div>
+                            <div class="chart-container"><canvas id="tenureChart"></canvas></div>
+                        </div>
+                    </section>
+
+                    <section class="section-block" id="retention">
+                        <div class="section-heading">
+                            <h2>Retention</h2>
+                            <p>Team and area performance</p>
+                        </div>
+                        <div class="split-grid">
+                            <div class="panel-card">
+                                <div class="chart-header"><h3>Team Retention</h3></div>
+                                <div class="table-scroll">
+                                    <table class="retention-table">
+                                        <thead><tr><th>Team</th><th>Branch</th><th>Total Agents</th><th>Retained (Active)</th><th>Retention %</th></tr></thead>
+                                        <tbody id="teamRetentionBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="panel-card">
+                                <div class="chart-header"><h3>Area Retention &amp; Average Tenure</h3></div>
+                                <div class="table-scroll">
+                                    <table class="area-table">
+                                        <thead><tr><th>Area</th><th>Total</th><th>Active</th><th>Inactive</th><th>Inactive %</th><th>Avg Tenure (days)</th><th>Trend</th></tr></thead>
+                                        <tbody id="areaTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="section-block section-block--employees" id="employees">
+                        <div class="section-heading">
+                            <h2>Employees</h2>
+                            <p>Every record matching the current filters</p>
+                        </div>
+                        <div class="employee-card">
+                            <div class="employee-table-wrapper">
+                                <table class="employee-table">
+                                    <thead><tr><th>Name</th><th>Team</th><th>Age</th><th>D.O.B</th><th>Gender</th><th>Nationality</th><th>Qualification</th><th>Area</th><th>Kids</th><th>Renting/Family Home</th><th>Experience</th><th>Salaries</th><th>Salaries Grouping</th><th>Source</th><th>Start Date</th><th>Tenure (days)</th><th>Status</th></tr></thead>
+                                    <tbody id="employeeTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </section>
-
-            <section class="empty-state-panel" id="emptyStatePanel">
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-chart-bar"></i></div>
-                    <h2 id="emptyStateTitle">No monthly data yet</h2>
-                    <p id="emptyStateDescription">The database has no stored reports yet.</p>
-                    <ul class="empty-steps">
-                        <li><i class="fas fa-lock"></i> Admin → sign in</li>
-                        <li><i class="fas fa-file-excel"></i> Choose your monthly Excel file</li>
-                        <li><i class="fas fa-cloud-upload-alt"></i> Upload & Store</li>
-                    </ul>
-                </div>
-            </section>
-
-            <div id="dashboardContent" hidden>
-                <div class="filter-bar" id="filterBar"></div>
-
-                <section class="section-block">
-                    <div class="section-heading">
-                        <h2>Overview</h2>
-                        <p>Key metrics for the selected month and filters</p>
-                    </div>
-                    <div class="cards" id="summaryCards"></div>
-                </section>
-
-                <section class="section-block">
-                    <div class="section-heading">
-                        <h2>Analytics</h2>
-                        <p>Composition, sources, and tenure breakdown</p>
-                    </div>
-                    <div class="charts-row">
-                        <div class="chart-card"><div class="chart-header"><h3>Source Effectiveness</h3></div><div class="chart-container"><canvas id="sourceChart"></canvas></div></div>
-                        <div class="chart-card"><div class="chart-header"><h3>Team Composition</h3></div><div class="chart-container"><canvas id="teamChart"></canvas></div></div>
-                    </div>
-                    <div class="charts-row">
-                        <div class="chart-card"><div class="chart-header"><h3>Gender Distribution</h3></div><div class="chart-container"><canvas id="genderChart"></canvas></div></div>
-                        <div class="chart-card"><div class="chart-header"><h3>Salary Brackets (Active)</h3></div><div class="chart-container"><canvas id="salaryChart"></canvas></div></div>
-                    </div>
-                    <div class="charts-row charts-row--single">
-                        <div class="chart-card"><div class="chart-header"><h3>Tenure Distribution (days)</h3></div><div class="chart-container"><canvas id="tenureChart"></canvas></div></div>
-                    </div>
-                </section>
-
-                <section class="section-block">
-                    <div class="section-heading">
-                        <h2>Retention</h2>
-                        <p>Team and area performance</p>
-                    </div>
-                    <div class="team-retention-card">
-                        <div class="chart-header"><h3><i class="fas fa-users"></i> Team Retention</h3></div>
-                        <div class="table-scroll">
-                            <table class="retention-table">
-                                <thead><tr><th>Team</th><th>Branch</th><th>Total Agents</th><th>Retained (Active)</th><th>Retention %</th></tr></thead>
-                                <tbody id="teamRetentionBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="area-card">
-                        <div class="chart-header"><h3>Area Retention & Average Tenure</h3></div>
-                        <div class="table-scroll">
-                            <table class="area-table">
-                                <thead><tr><th>Area</th><th>Total</th><th>Active</th><th>Inactive</th><th>Inactive %</th><th>Avg Tenure (days)</th><th>Trend</th></tr></thead>
-                                <tbody id="areaTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="section-block section-block--employees">
-                    <div class="section-heading">
-                        <h2>Employees</h2>
-                    </div>
-                    <div class="employee-card">
-                        <div class="employee-table-wrapper">
-                            <table class="employee-table">
-                                <thead><tr><th>Name</th><th>Team</th><th>Age</th><th>D.O.B</th><th>Gender</th><th>Nationality</th><th>Qualification</th><th>Area</th><th>Kids</th><th>Renting/Family Home</th><th>Experience</th><th>Salaries</th><th>Salaries Grouping</th><th>Source</th><th>Start Date</th><th>Tenure (days)</th><th>Status</th></tr></thead>
-                                <tbody id="employeeTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
             </div>
         </div>
     </div>
@@ -147,7 +192,7 @@
     <div class="modal-overlay" id="loginModal">
         <div class="modal-card">
             <button class="modal-close" id="modalClose" type="button"><i class="fas fa-times"></i></button>
-            <h3><i class="fas fa-lock"></i> Admin Login</h3>
+            <h3>Admin Login</h3>
             <p>Sign in to upload or delete monthly reports.</p>
             <div class="input-group">
                 <label for="modalEmail">Email</label>
@@ -163,6 +208,58 @@
     </div>
 
     <script type="module" src="/src/main.ts"></script>
+
+    <!-- Presentation-only chrome: today's date label, sidebar highlighting, mobile drawer.
+         No application data or behaviour depends on any of this. -->
+    <script>
+      (function () {
+        var dateEl = document.getElementById('pageDate');
+        if (dateEl) {
+          try {
+            dateEl.textContent = new Date().toLocaleDateString(undefined, {
+              day: 'numeric', month: 'long', year: 'numeric'
+            });
+          } catch (e) { /* label is decorative */ }
+        }
+
+        var shell = document.getElementById('dashboardContainer');
+        var toggle = document.getElementById('navToggle');
+        var scrim = document.getElementById('sidebarScrim');
+        function closeNav() { if (shell) shell.classList.remove('nav-open'); }
+        if (toggle && shell) {
+          toggle.addEventListener('click', function () { shell.classList.toggle('nav-open'); });
+        }
+        if (scrim) scrim.addEventListener('click', closeNav);
+
+        var items = Array.prototype.slice.call(document.querySelectorAll('.nav-item[data-nav]'));
+        function setActive(id) {
+          items.forEach(function (a) { a.classList.toggle('is-active', a.getAttribute('data-nav') === id); });
+        }
+        items.forEach(function (a) {
+          a.addEventListener('click', function () {
+            setActive(a.getAttribute('data-nav'));
+            closeNav();
+          });
+        });
+
+        if ('IntersectionObserver' in window) {
+          var seen = {};
+          var obs = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) { seen[e.target.id] = e.isIntersecting ? e.intersectionRatio : 0; });
+            var best = null, bestRatio = 0;
+            Object.keys(seen).forEach(function (id) {
+              if (seen[id] > bestRatio) { bestRatio = seen[id]; best = id; }
+            });
+            if (best) setActive(best);
+          }, { rootMargin: '-96px 0px -55% 0px', threshold: [0, 0.2, 0.5, 1] });
+          items.forEach(function (a) {
+            var target = document.getElementById(a.getAttribute('data-nav'));
+            if (target) obs.observe(target);
+          });
+        }
+      })();
+    </script>
+
     <script>
       if (location.protocol === 'file:') {
         var s = document.createElement('link');
