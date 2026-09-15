@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sql } from './_lib/db';
-import { requireAdmin } from './_lib/auth';
-import { hydrateEmployeeDates } from '../src/utils/date';
-import { normalizeEmployees } from '../src/utils/normalize';
-import { sanitizeEmployees } from './_lib/sanitize';
+import { sql } from './_lib/db.js';
+import { requireAdmin } from './_lib/auth.js';
+import { hydrateEmployeeDates } from '../src/utils/date.js';
+import { normalizeEmployees } from '../src/utils/normalize.js';
+import { sanitizeEmployees } from './_lib/sanitize.js';
 import type { Employee } from '../src/types';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

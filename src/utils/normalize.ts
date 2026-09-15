@@ -1,5 +1,5 @@
-import { SALARY_BRACKETS } from '../config';
-import { canonicalizeTeam } from '../teams';
+import { SALARY_BRACKETS } from '../config.js';
+import { canonicalizeTeam } from '../teams.js';
 import type { Employee } from '../types';
 
 const GENDER_VALUES = new Set(['male', 'female', 'm', 'f', 'other']);

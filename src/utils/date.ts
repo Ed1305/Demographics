@@ -1,5 +1,5 @@
 import type { Employee } from '../types';
-import { normalizeMonthKey } from './month';
+import { normalizeMonthKey } from './month.js';
 
 function excelSerialToLocalDate(serial: number): Date {
   const utcDays = Math.floor(serial - 25569);

@@ -1,4 +1,4 @@
-import { stripRuntimeFields } from '../../src/utils/date';
+import { stripRuntimeFields } from '../../src/utils/date.js';
 import type { Employee, StoredEmployee } from '../../src/types';
 
 export function sanitizeEmployee(employee: Employee): StoredEmployee {

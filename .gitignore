@@ -6,3 +6,5 @@ dist
 .env.watch
 .env.migrate
 logs
+.vercel
+
