@@ -81,8 +81,8 @@ export function renderDashboard(data: Employee[]): void {
 
   const filterBar = getById<HTMLDivElement>('filterBar');
   filterBar.innerHTML = `
-    <div class="filter-group"><label><i class="fas fa-code-branch"></i> Branch</label><select id="branchFilter">${branches.map((b) => `<option value="${b}">${b}</option>`).join('')}</select></div>
-    <div class="filter-group"><label><i class="fas fa-toggle-on"></i> Status</label><select id="statusFilter"><option value="ALL">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+    <div class="filter-group"><label>Branch</label><select id="branchFilter">${branches.map((b) => `<option value="${b}">${b}</option>`).join('')}</select></div>
+    <div class="filter-group"><label>Status</label><select id="statusFilter"><option value="ALL">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
     <div class="filter-group"><label>Team</label><select id="teamFilter"><option value="ALL">All Teams</option></select></div>
     <div class="filter-group"><label>Source</label><select id="sourceFilter"><option value="ALL">All Sources</option></select></div>
     <div class="filter-group"><label>Gender</label><select id="genderFilter"><option value="ALL">All Genders</option></select></div>
@@ -135,13 +135,13 @@ export function applyFilters(): void {
     : 'N/A';
 
   getById<HTMLDivElement>('summaryCards').innerHTML = `
-    <div class="card card--active"><div class="card-title"><i class="fas fa-user-check"></i> Active</div><div class="card-value">${activeCount}</div><div class="card-foot">${retentionRate}% retention</div></div>
-    <div class="card card--inactive"><div class="card-title"><i class="fas fa-user-slash"></i> Inactive</div><div class="card-value">${inactiveCount}</div><div class="card-foot">${inactivePct}% of total</div></div>
-    <div class="card card--total"><div class="card-title"><i class="fas fa-users"></i> Total</div><div class="card-value">${total}</div><div class="card-foot">${teamsCount} teams</div></div>
-    <div class="card card--branch card--invnt"><div class="card-title"><i class="fas fa-building"></i> Invnt</div><div class="card-value">${branchCounts.Invnt}</div><div class="card-foot">${total ? ((branchCounts.Invnt / total) * 100).toFixed(1) : '0'}% of filtered</div></div>
-    <div class="card card--branch card--alpha"><div class="card-title"><i class="fas fa-building"></i> Alpha</div><div class="card-value">${branchCounts.Alpha}</div><div class="card-foot">${total ? ((branchCounts.Alpha / total) * 100).toFixed(1) : '0'}% of filtered</div></div>
-    <div class="card card--age"><div class="card-title"><i class="fas fa-calendar-week"></i> Avg Age</div><div class="card-value">${(filtered.reduce((acc, d) => acc + (+d.age || 0), 0) / total || 0).toFixed(1)}</div><div class="card-foot">years</div></div>
-    <div class="card card--tenure"><div class="card-title"><i class="fas fa-hourglass-half"></i> Avg Tenure</div><div class="card-value">${avgTenure}</div><div class="card-foot">days</div></div>
+    <div class="card card--active"><div class="card-title">Active</div><div class="card-value">${activeCount}</div><div class="card-foot"><span class="card-dot"></span><span class="card-delta">${retentionRate}%</span> retention</div></div>
+    <div class="card card--inactive"><div class="card-title">Inactive</div><div class="card-value">${inactiveCount}</div><div class="card-foot"><span class="card-dot"></span><span class="card-delta">${inactivePct}%</span> of total</div></div>
+    <div class="card card--total"><div class="card-title">Total</div><div class="card-value">${total}</div><div class="card-foot"><span class="card-dot"></span><span class="card-delta">${teamsCount}</span> teams</div></div>
+    <div class="card card--branch card--invnt"><div class="card-title">Invnt</div><div class="card-value">${branchCounts.Invnt}</div><div class="card-foot"><span class="card-dot"></span><span class="card-delta">${total ? ((branchCounts.Invnt / total) * 100).toFixed(1) : '0'}%</span> of filtered</div></div>
+    <div class="card card--branch card--alpha"><div class="card-title">Alpha</div><div class="card-value">${branchCounts.Alpha}</div><div class="card-foot"><span class="card-dot"></span><span class="card-delta">${total ? ((branchCounts.Alpha / total) * 100).toFixed(1) : '0'}%</span> of filtered</div></div>
+    <div class="card card--age"><div class="card-title">Avg Age</div><div class="card-value">${(filtered.reduce((acc, d) => acc + (+d.age || 0), 0) / total || 0).toFixed(1)}</div><div class="card-foot"><span class="card-dot"></span>years</div></div>
+    <div class="card card--tenure"><div class="card-title">Avg Tenure</div><div class="card-value">${avgTenure}</div><div class="card-foot"><span class="card-dot"></span>days</div></div>
   `;
 
   const srcGroups: Record<string, StatusCounts> = {};
@@ -213,7 +213,7 @@ export function applyFilters(): void {
       const branch = getBranch(team);
       const branchClass =
         branch === 'Invnt' ? 'branch-invnt' : branch === 'Alpha' ? 'branch-alpha' : 'branch-other';
-      return `<tr><td>${team}</td><td><span class="branch-tag ${branchClass}">${branch}</span></td><td>${counts.total}</td><td>${counts.active}</td><td>${retention}%</td></tr>`;
+      return `<tr class="${Number(retention) >= 70 ? 'row--pos' : Number(retention) < 50 ? 'row--neg' : 'row--warn'}"><td>${team}</td><td><span class="branch-tag ${branchClass}">${branch}</span></td><td>${counts.total}</td><td>${counts.active}</td><td>${retention}%</td></tr>`;
     })
     .join('');
 
@@ -235,7 +235,7 @@ export function applyFilters(): void {
         : '—';
       const inactPctNum = Number(inactPct);
       const rateClass = inactPctNum >= 30 ? 'rate-high' : inactPctNum <= 10 ? 'rate-low' : '';
-      return `<tr><td>${area}</td><td>${stats.total}</td><td>${stats.active}</td><td>${stats.inactive}</td><td><span class="badge-rate ${rateClass}">${inactPct}%</span></td><td>${avgTenureArea}</td><td>${inactPctNum > 30 ? '🔴 High' : inactPctNum > 15 ? '🟡 Moderate' : '🟢 Stable'}</td></tr>`;
+      return `<tr class="${inactPctNum > 30 ? 'row--neg' : inactPctNum > 15 ? 'row--warn' : 'row--pos'}"><td>${area}</td><td>${stats.total}</td><td>${stats.active}</td><td>${stats.inactive}</td><td><span class="badge-rate ${rateClass}">${inactPct}%</span></td><td>${avgTenureArea}</td><td>${inactPctNum > 30 ? '<span class="badge-rate rate-high">High</span>' : inactPctNum > 15 ? '<span class="badge-rate">Moderate</span>' : '<span class="badge-rate rate-low">Stable</span>'}</td></tr>`;
     })
     .join('');
 
@@ -256,7 +256,7 @@ export function applyFilters(): void {
         if (/^\d+(\.\d+)?$/.test(numeric)) return `R${Number(numeric).toLocaleString()}`;
         return text;
       };
-      return `<tr>
+      return `<tr class="row--${d.status}">
         <td>${d.name}</td><td><span class="branch-tag branch-${getBranch(d.team).toLowerCase()}">${getBranch(d.team)}</span> ${d.team}</td><td>${d.age}</td><td>${dobStr}</td><td>${cell(d.gender)}</td><td>${cell(d.nationality)}</td><td>${cell(d.qualification)}</td><td>${cell(d.area)}</td><td>${d.kids ?? '—'}</td><td>${cell(d.housing)}</td><td>${cell(d.experience)}</td><td>${formatSalary(d.salaryExact)}</td><td>${cell(d.salaryBracket)}</td><td>${cell(d.source)}</td>
         <td>${startStr}</td><td>${tenureDisplay}</td>
         <td><span class="status-badge ${d.status}">${d.status}</span></td>
