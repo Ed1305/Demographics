@@ -64,8 +64,7 @@ export async function refreshMonthSelector(selectedKey: string | null = null): P
     const message = err instanceof Error ? err.message : 'Could not connect to the database.';
     getById<HTMLParagraphElement>('monthStatus').textContent = message;
     getById<HTMLHeadingElement>('emptyStateTitle').textContent = 'Could not load stored months';
-    getById<HTMLParagraphElement>('emptyStateDescription').textContent =
-      'Check your connection, then refresh the page.';
+    getById<HTMLParagraphElement>('emptyStateDescription').textContent = message;
     storedMonthCount = 0;
     showEmptyState();
     return;

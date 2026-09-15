@@ -1,12 +1,14 @@
 import { createHmac, scryptSync, timingSafeEqual, randomBytes } from 'node:crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const SECRET = process.env.SESSION_SECRET;
-if (!SECRET) {
-  throw new Error('SESSION_SECRET is not set');
-}
 export const COOKIE_NAME = 'dp_session';
 const MAX_AGE = 60 * 60 * 12; // 12 hours
+
+function getSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) throw new Error('SESSION_SECRET is not set');
+  return secret;
+}
 
 /** Run once locally to generate ADMIN_PASSWORD_HASH. */
 export function hashPassword(password: string): string {
@@ -23,7 +25,7 @@ export function verifyPassword(password: string, stored: string): boolean {
 }
 
 const sign = (payload: string) =>
-  createHmac('sha256', SECRET).update(payload).digest('base64url');
+  createHmac('sha256', getSecret()).update(payload).digest('base64url');
 
 export function issueToken(email: string): string {
   const exp = Math.floor(Date.now() / 1000) + MAX_AGE;

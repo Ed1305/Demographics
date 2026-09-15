@@ -7,11 +7,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const email = String(req.body?.email ?? '').trim().toLowerCase();
   const password = String(req.body?.password ?? '');
 
-  const adminEmail = process.env.ADMIN_EMAIL;
-  const adminHash = process.env.ADMIN_PASSWORD_HASH;
+  const adminEmail = process.env.ADMIN_EMAIL?.trim();
+  const adminHash = process.env.ADMIN_PASSWORD_HASH?.trim();
   if (!adminEmail || !adminHash) {
     console.error('ADMIN_EMAIL or ADMIN_PASSWORD_HASH is not set');
     return res.status(500).json({ error: 'Server is not configured for sign-in.' });
+  }
+  if (!/^[0-9a-f]+:[0-9a-f]+$/i.test(adminHash)) {
+    console.error('ADMIN_PASSWORD_HASH is not salt:hex from hashPassword()');
+    return res.status(500).json({
+      error:
+        'Sign-in is misconfigured. ADMIN_PASSWORD_HASH must be the salt:hex value from hashPassword(), not the password itself.',
+    });
   }
 
   // Run the KDF unconditionally. Short-circuiting on the email comparison
