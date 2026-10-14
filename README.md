@@ -33,14 +33,13 @@ Workforce demographics and retention dashboard. Upload monthly Excel reports, st
    | Variable | Description |
    |----------|-------------|
    | `DATABASE_URL` | Neon pooler connection string |
-   | `ADMIN_EMAIL` | Admin sign-in email |
-   | `ADMIN_PASSWORD_HASH` | Output of `hashPassword()` in `api/_lib/auth.ts` |
+   | `ADMIN_PASSWORD_HASH` | `hashPassword()` of your admin access code (`api/_lib/auth.ts`) |
    | `SESSION_SECRET` | Random secret for signing session cookies (`openssl rand -base64 32`) |
 
-   Generate the password hash once:
+   Generate the access-code hash once:
 
    ```bash
-   npx tsx -e "import {hashPassword} from './api/_lib/auth.ts'; console.log(hashPassword('your-new-password'))"
+   npx tsx -e "import {hashPassword} from './api/_lib/auth.ts'; console.log(hashPassword('your-access-code'))"
    ```
 
 3. **Set up Neon**
@@ -88,7 +87,7 @@ Admin access is an HttpOnly session cookie issued by `/api/auth/login`. The dash
 
 ## Deploy
 
-The app builds to `dist/` and runs `/api` as Vercel serverless functions. The four server-only env vars are read at runtime.
+The app builds to `dist/` and runs `/api` as Vercel serverless functions. The three server-only env vars are read at runtime.
 
 ### Vercel
 
@@ -104,8 +103,7 @@ The app builds to `dist/` and runs `/api` as Vercel serverless functions. The fo
    | Name | Value |
    |------|--------|
    | `DATABASE_URL` | Neon pooler connection string |
-   | `ADMIN_EMAIL` | Admin sign-in email |
-   | `ADMIN_PASSWORD_HASH` | `scrypt` hash from `hashPassword()` |
+   | `ADMIN_PASSWORD_HASH` | `scrypt` hash of the admin access code from `hashPassword()` |
    | `SESSION_SECRET` | Random secret (`openssl rand -base64 32`) |
 
    Apply to **Production**, **Preview**, and **Development** so all deploys work.

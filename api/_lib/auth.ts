@@ -10,7 +10,7 @@ function getSecret(): string {
   return secret;
 }
 
-/** Run once locally to generate ADMIN_PASSWORD_HASH. */
+/** Run once locally to generate ADMIN_PASSWORD_HASH from your access code. */
 export function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
   return `${salt}:${scryptSync(password, salt, 64).toString('hex')}`;

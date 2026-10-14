@@ -17,7 +17,7 @@ export function bindEvents(): void {
   getById<HTMLDivElement>('loginModal').addEventListener('click', handleModalOverlayClick);
   getById<HTMLButtonElement>('modalLoginBtn').addEventListener('click', handleModalLogin);
   getById<HTMLButtonElement>('logoutBtn').addEventListener('click', handleLogout);
-  getById<HTMLInputElement>('modalPassword').addEventListener('keydown', (event) => {
+  getById<HTMLInputElement>('modalAccessCode').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') void handleModalLogin();
   });
   getById<HTMLInputElement>('fileInput').addEventListener('change', handleFileSelect);
@@ -205,10 +205,9 @@ async function handleClearAllMonths(): Promise<void> {
 function openLoginModal(): void {
   const modalOverlay = getById<HTMLDivElement>('loginModal');
   modalOverlay.classList.add('show');
-  getById<HTMLInputElement>('modalEmail').value = '';
-  getById<HTMLInputElement>('modalPassword').value = '';
+  getById<HTMLInputElement>('modalAccessCode').value = '';
   getById<HTMLDivElement>('modalError').innerText = '';
-  getById<HTMLInputElement>('modalEmail').focus();
+  getById<HTMLInputElement>('modalAccessCode').focus();
 }
 
 function closeLoginModal(): void {
@@ -223,20 +222,19 @@ function handleModalOverlayClick(event: MouseEvent): void {
 }
 
 async function handleModalLogin(): Promise<void> {
-  const email = getById<HTMLInputElement>('modalEmail').value.trim();
-  const password = getById<HTMLInputElement>('modalPassword').value.trim();
+  const accessCode = getById<HTMLInputElement>('modalAccessCode').value;
   const loginBtn = getById<HTMLButtonElement>('modalLoginBtn');
   const errorEl = getById<HTMLDivElement>('modalError');
 
-  if (!email || !password) {
-    errorEl.innerText = 'Email and password are required.';
+  if (!accessCode.trim()) {
+    errorEl.innerText = 'Access code is required.';
     return;
   }
 
   loginBtn.disabled = true;
   errorEl.innerText = '';
 
-  const errorMessage = await login(email, password);
+  const errorMessage = await login(accessCode);
   loginBtn.disabled = false;
 
   if (errorMessage) {

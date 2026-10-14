@@ -42,11 +42,11 @@ export async function initAuth(): Promise<void> {
   }
 }
 
-export async function login(email: string, password: string): Promise<string | null> {
+export async function login(accessCode: string): Promise<string | null> {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+    body: JSON.stringify({ accessCode }),
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
