@@ -153,13 +153,22 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  background: var(--accent);
+  background: var(--surface-3);
   color: var(--on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.logo-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  padding: 3px;
 }
 
 .logo-text {

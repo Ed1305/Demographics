@@ -1,8 +1,22 @@
 # Alpha Konnect · Demographics Portal
 
-**Live app:** [demographics-rust.vercel.app](https://demographics-rust.vercel.app/)
+**Live app:** [demographics-eight.vercel.app](https://demographics-eight.vercel.app/)
 
 Workforce demographics and retention dashboard. Upload monthly Excel reports, store them in Neon Postgres, and explore charts, filters, and retention tables.
+
+## Brand icon
+
+The app icon is the D-monogram mark. Source files live in `public/` and are referenced from
+`index.html` (`favicon.ico`, `icon-16/32.png`, `apple-touch-icon.png`, `site.webmanifest`):
+
+| File | Use |
+|------|-----|
+| `favicon.ico` | browser tab (16/32/48/64 multi-size) |
+| `icon-16/32/48/64.png` | browser tab, bookmarks, small tiles |
+| `icon-180.png`, `apple-touch-icon.png` | iOS home screen |
+| `icon-192/512.png` | PWA / Android home screen |
+| `icon-maskable-512.png` | Android adaptive icon (maskable) |
+| `logo-mark.png` | transparent mark used in the sidebar |
 
 ## Stack
 
